@@ -27,6 +27,6 @@ jobs:
       run: |
           # Set the DJANGO_SETTINGS_MODULE environment variable
           # Replace 'backend.settings' with actual settings module path
-          DJANGO_SETTINGS_MODULE=backend.settings pylint --load-plugins=pylint_django .
+          pylint --load-plugins=pylint_django .
       env:
         PYTHONPATH: "${{ github.workspace }}" # Ensures your project modules are found
