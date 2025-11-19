@@ -1,0 +1,31 @@
+name: Pylint
+
+on: [push]
+
+defaults:
+  run:
+    working-directory: ./backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install Django pylint pylint-django
+    - name: Run Pylint
+      run: |
+          # Set the DJANGO_SETTINGS_MODULE environment variable
+          # Replace 'backend.settings' with actual settings module path
+          DJANGO_SETTINGS_MODULE=backend.settings pylint --load-plugins=pylint_django .
+      env:
+        PYTHONPATH: "${{ github.workspace }}" # Ensures your project modules are found
