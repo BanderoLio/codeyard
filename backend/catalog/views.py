@@ -3,14 +3,9 @@ from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from catalog import filters, models, permissions as catalog_permissions, serializers, services
-
-
-class StaffWritePermissionMixin(viewsets.ModelViewSet):
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return [permissions.AllowAny()]
-        return [permissions.IsAdminUser()]
+from catalog import filters, models, serializers, services
+from common.mixins import StaffWritePermissionMixin
+from common.permissions import IsOwnerOrReadOnly
 
 
 class CategoryViewSet(StaffWritePermissionMixin):
@@ -45,7 +40,7 @@ class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SolutionSerializer
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
-        catalog_permissions.IsOwnerOrReadOnly,
+        IsOwnerOrReadOnly,
     )
     filterset_class = filters.SolutionFilter
     search_fields = ('task__name', 'language__name', 'user__username')

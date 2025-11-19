@@ -16,9 +16,11 @@ class SolutionApiTests(APITestCase):
         self.other = User.objects.create_user(
             username='other', password='strongpass123'
         )
-        self.category = models.Category.objects.create(name='Graphs')
-        self.difficulty = models.Difficulty.objects.create(name='Easy')
-        self.language = models.ProgrammingLanguage.objects.create(name='Python')
+        self.category, _ = models.Category.objects.get_or_create(name='Graphs')
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name='Easy')
+        self.language, _ = models.ProgrammingLanguage.objects.get_or_create(
+            name='Python'
+        )
         self.task = models.ProgrammingTask.objects.create(
             name='Two Sum',
             description='Find two numbers',

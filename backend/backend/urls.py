@@ -22,12 +22,6 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
-from catalog.authentication import (
-    CookieTokenObtainPairView,
-    CookieTokenRefreshView,
-    LogoutView,
-)
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -41,8 +35,6 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name='schema'),
         name='redoc',
     ),
+    path('api/auth/', include('accounts.urls')),
     path('api/', include('catalog.urls')),
-    path('api/auth/login/', CookieTokenObtainPairView.as_view(), name='login'),
-    path('api/auth/refresh/', CookieTokenRefreshView.as_view(), name='refresh'),
-    path('api/auth/logout/', LogoutView.as_view(), name='logout'),
 ]

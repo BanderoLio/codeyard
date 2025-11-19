@@ -1,18 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any, Dict
 
 from django.db import transaction
 from django.utils import timezone
 
 from catalog import models
-
-
-@dataclass
-class ServiceResult:
-    instance: models.Model
-    created: bool = False
+from common.services import ServiceResult
 
 
 def _sync_task_status(task: models.ProgrammingTask, *, is_public: bool) -> None:
