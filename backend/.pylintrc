@@ -1,2 +1,2 @@
-[MASTER]
-ignore=migrations,tests
+[MAIN]
+ignore-paths=^.*/migrations/|.*/tests/
