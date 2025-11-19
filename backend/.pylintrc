@@ -1,2 +1,6 @@
-[MASTER]
-ignore=migrations,tests
+[MAIN]
+ignore-paths=^.*/migrations/|.*/tests/
+fail-under=7.0
+
+[MESSAGES CONTROL]
+disable=C0114,C0115,C0116  # Disable specific docstring checks
