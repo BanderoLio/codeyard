@@ -1,13 +1,16 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
-from rest_framework import permissions
+from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 from django_ratelimit.decorators import ratelimit
+
+from accounts.serializers import RegisterSerializer, UserSerializer
 
 
 class CookieMixin:
@@ -55,6 +58,34 @@ class CookieTokenRefreshView(CookieMixin, TokenRefreshView):
         if response.status_code == 200 and refresh_token:
             self.set_refresh_cookie(response, refresh_token)
         return response
+
+
+@method_decorator(
+    ratelimit(key="ip", rate="5/m", block=True), name="dispatch"
+)
+class RegisterView(CookieMixin, APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            response = Response(
+                {"access": str(refresh.access_token)},
+                status=status.HTTP_201_CREATED,
+            )
+            self.set_refresh_cookie(response, str(refresh))
+            return response
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MeView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 
 class LogoutView(CookieMixin, APIView):
