@@ -3,5 +3,6 @@ venv/
 .env
 .env*
 __pycache__/
+.coverage
 db.sqlite3
 cache-data/
