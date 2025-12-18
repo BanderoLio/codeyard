@@ -9,12 +9,13 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { authApi } from '../index';
+import { authApi } from '../auth.api';
 import { loginSchema, TLogin } from '../types/login.type';
 import { WithRedirect } from './with-redirect';
 import { LogInIcon } from 'lucide-react';
 import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
+import { getErrorMessage } from '@/lib/utils/error-handler';
 
 export function LoginForm() {
   const form = useForm<TLogin>({
@@ -25,17 +26,25 @@ export function LoginForm() {
     },
   });
   const router = useRouter();
-  const setAuthorization = useAppStoreApi().use.setAuthorization();
+  const storeApi = useAppStoreApi();
+  const setAuthorization = storeApi.use.setAuthorization();
+  const setUser = storeApi.use.setUser();
   const [error, setError] = useState<string | null>(null);
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setAuthorization(data);
-      router.push('/decks');
+      try {
+        const user = await authApi.getMe();
+        setUser(user);
+      } catch (err) {
+        console.error('Failed to fetch user data:', err);
+      }
+      router.push('/catalog');
     },
     onError: (err: Error) => {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(getErrorMessage(err));
     },
   });
 
@@ -45,7 +54,7 @@ export function LoginForm() {
   };
 
   return (
-    <WithRedirect to="/decks">
+    <WithRedirect to="/catalog">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -64,7 +73,11 @@ export function LoginForm() {
             control={form.control}
             render={({ field }) => (
               <FormItem label="Password">
-                <Input placeholder="Enter your password" {...field} />
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  {...field}
+                />
               </FormItem>
             )}
             name="password"

@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework import mixins, permissions, status, viewsets
+from rest_framework import mixins, pagination, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -8,19 +8,26 @@ from common.mixins import StaffWritePermissionMixin
 from common.permissions import IsOwnerOrReadOnly
 
 
+class NoPagination(pagination.PageNumberPagination):
+    page_size = None
+
+
 class CategoryViewSet(StaffWritePermissionMixin):
     queryset = models.Category.objects.all().order_by("name")
     serializer_class = serializers.CategorySerializer
+    pagination_class = NoPagination
 
 
 class DifficultyViewSet(StaffWritePermissionMixin):
     queryset = models.Difficulty.objects.all().order_by("name")
     serializer_class = serializers.DifficultySerializer
+    pagination_class = NoPagination
 
 
 class ProgrammingLanguageViewSet(StaffWritePermissionMixin):
     queryset = models.ProgrammingLanguage.objects.all().order_by("name")
     serializer_class = serializers.ProgrammingLanguageSerializer
+    pagination_class = NoPagination
 
 
 class ProgrammingTaskViewSet(viewsets.ModelViewSet):
@@ -29,8 +36,27 @@ class ProgrammingTaskViewSet(viewsets.ModelViewSet):
     ).all()
     serializer_class = serializers.ProgrammingTaskSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    filterset_class = filters.TaskFilter
     search_fields = ("name",)
     ordering_fields = ("created_at",)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if not self.request.user.is_authenticated:
+            return qs.filter(status=models.ProgrammingTask.TaskStatus.PUBLIC)
+        return qs.filter(
+            Q(status=models.ProgrammingTask.TaskStatus.PUBLIC)
+            | Q(added_by=self.request.user)
+        ).distinct()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     def perform_create(self, serializer):
         serializer.save(added_by=self.request.user)

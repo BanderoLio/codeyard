@@ -1,5 +1,3 @@
-// TODO wait for backend to implement login endpoint
-
 import z from 'zod';
 
 export const loginSchema = z.object({

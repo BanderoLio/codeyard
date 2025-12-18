@@ -3,7 +3,7 @@
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import type { LinkProps } from 'next/link';
 import Link from 'next/link';
-import { useState, type PropsWithChildren, type ReactNode } from 'react';
+import { useState, type PropsWithChildren } from 'react';
 import { AuthModal } from './auth-modal';
 import { Slot } from '@radix-ui/react-slot';
 
@@ -13,7 +13,6 @@ export function AuthLink({
   ...props
 }: PropsWithChildren<
   LinkProps & {
-    // render: (onClick: () => void) => ReactNode;
     asChild?: boolean;
   }
 >) {

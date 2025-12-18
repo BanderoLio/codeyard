@@ -1,10 +1,19 @@
+'use client';
+
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
-import { redirect, RedirectType } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export function useAuth() {
-  const auth = useAppStoreApi().use.authorization();
-  if (!auth) {
-    return redirect('/auth/login', RedirectType.replace);
-  }
+  const storeApi = useAppStoreApi();
+  const router = useRouter();
+  const auth = storeApi.use.authorization();
+
+  useEffect(() => {
+    if (!auth) {
+      router.replace('/auth/login');
+    }
+  }, [auth, router]);
+
   return auth;
 }

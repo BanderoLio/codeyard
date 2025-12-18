@@ -1,7 +1,5 @@
 import type { StateCreator } from 'zustand';
 
-// TODO: StoreMutatorIdentifier should be used to identify mutators.
-
 export type TStore<LocalStore, GlobalStore = LocalStore> = StateCreator<
   GlobalStore,
   [],

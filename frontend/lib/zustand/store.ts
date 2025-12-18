@@ -3,7 +3,7 @@ import { createStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-export type AppStore = AuthStore; // Concat stores
+export type AppStore = AuthStore;
 
 export const createAppStore = createStore<AppStore>()(
   immer(

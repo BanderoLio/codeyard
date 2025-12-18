@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Pixelify_Sans } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/shared/providers/theme.provider';
+import { QueryProvider } from '@/shared/providers/query.provider';
+import { ZustandProvider } from '@/shared/providers/zustand.provider';
 import { MainLayout } from '../widgets/layouts/MainLayout';
 
 const geistSans = Geist({
@@ -30,13 +32,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <MainLayout>{children}</MainLayout>
-        </ThemeProvider>
+        <ZustandProvider>
+          <QueryProvider>
+            <ThemeProvider>
+              <MainLayout>{children}</MainLayout>
+            </ThemeProvider>
+          </QueryProvider>
+        </ZustandProvider>
       </body>
     </html>
   );

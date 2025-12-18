@@ -1,5 +1,6 @@
 export { authApi } from './auth.api';
 export { LoginForm } from './components/login-form';
+export { RegisterForm } from './components/register-form';
 export { ProfileNavbar } from './components/profile-navbar';
 export { AuthLink } from './components/auth-link';
 export type { TAuthorization } from './types/authorization.type';

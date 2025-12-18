@@ -1,7 +1,7 @@
 'use client';
 
-import { useAppStoreApi } from '@/components/providers/zustand.provider';
-import { redirect, useRouter } from 'next/navigation';
+import { useAppStoreApi } from '@/shared/providers/zustand.provider';
+import { useRouter } from 'next/navigation';
 import { useEffect, type PropsWithChildren } from 'react';
 
 // Not HOC because it would cause use client

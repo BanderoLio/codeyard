@@ -1,22 +1,52 @@
 'use client';
 
-import { withSelectors, type WithSelectors } from '@/lib/zustand-selectors';
-import { AppStore, createAppStore } from '@/lib/zustand.store';
-import { createContext, useContext, useRef } from 'react';
+import { withSelectors, type WithSelectors } from '@/lib/zustand/selectors';
+import { AppStore, createAppStore } from '@/lib/zustand/store';
+import {
+  setAccessTokenGetter,
+  setTokenRefreshHandler,
+  setUnauthorizedHandler,
+} from '@/lib/api-client';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useStore } from 'zustand/react';
+import { authApi } from '@/features/auth/auth.api';
 
 type AppStoreApi = WithSelectors<typeof createAppStore>;
 
 const ZustandContext = createContext<AppStoreApi | undefined>(undefined);
 
 export function ZustandProvider({ children }: { children: React.ReactNode }) {
-  const storeApiRef = useRef<AppStoreApi | null>(null);
-  if (storeApiRef.current === null) {
-    storeApiRef.current = withSelectors(createAppStore);
-  }
+  const [storeApi] = useState<AppStoreApi>(
+    () => withSelectors(createAppStore as never) as AppStoreApi,
+  );
+
+  useEffect(() => {
+    setAccessTokenGetter(() => storeApi.getState().getAccessToken());
+    setTokenRefreshHandler((accessToken) => {
+      storeApi.getState().setAuthorization({ accessToken });
+    });
+    setUnauthorizedHandler(() => {
+      storeApi.getState().setAuthorization(null);
+      storeApi.getState().setUser(null);
+    });
+
+    const authorization = storeApi.getState().authorization;
+    const user = storeApi.getState().user;
+
+    if (authorization && !user) {
+      authApi
+        .getMe()
+        .then((userData) => {
+          storeApi.getState().setUser(userData);
+        })
+        .catch(() => {
+          storeApi.getState().setAuthorization(null);
+        });
+    }
+  }, [storeApi]);
+
   return (
-    // eslint-disable-next-line react-hooks/refs
-    <ZustandContext.Provider value={storeApiRef.current}>
+    <ZustandContext.Provider value={storeApi}>
       {children}
     </ZustandContext.Provider>
   );

@@ -200,6 +200,8 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
 }
 
 SPECTACULAR_SETTINGS = {
@@ -218,10 +220,13 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("DJANGO_CORS_ALLOWED_ORIGINS", "").split(",")
+    for origin in os.getenv(
+        "DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:3000"
+    ).split(",")
     if origin.strip()
 ]
-CORS_ALLOW_ALL_ORIGINS = not CORS_ALLOWED_ORIGINS
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
 
 REFRESH_COOKIE_NAME = "refreshToken"
 REFRESH_COOKIE_SECURE = os.getenv("DJANGO_SECURE_COOKIES", "false") == "true"

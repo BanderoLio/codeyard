@@ -1,6 +1,6 @@
 'use client';
 
-import { useAppStoreApi } from '@/components/providers/zustand.provider';
+import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import { Avatar } from '@/components/ui/avatar';
 import {
   NavigationMenuItem,
@@ -17,7 +17,7 @@ export function ProfileNavbar() {
   const { mounted } = useMounted();
   const auth = useAppStoreApi().use.authorization();
   if (!mounted) {
-    return <Skeleton className="min-w-8 min-h-8 animate-pulse"></Skeleton>;
+    return <Skeleton className="min-h-8 min-w-8 animate-pulse"></Skeleton>;
   }
   if (!auth)
     return (
@@ -38,7 +38,7 @@ export function ProfileNavbar() {
     <NavigationMenuItem>
       <Avatar className="bg-muted size-9">
         <AvatarFallback>
-          <UserCircle className="text-primary w-full h-full" />
+          <UserCircle className="text-primary h-full w-full" />
         </AvatarFallback>
       </Avatar>
     </NavigationMenuItem>

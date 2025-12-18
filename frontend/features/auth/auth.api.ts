@@ -4,31 +4,50 @@ import type { TLogin } from './types/login.type';
 import type { TRegister } from './types/register.type';
 import type { TUser } from './types/user.type';
 
+type LoginResponse = {
+  access: string;
+};
+
 export const authApi = {
   login: async (data: TLogin): Promise<TAuthorization> => {
+    const response = await apiClient.post<
+      LoginResponse,
+      '/api/auth/login/',
+      TLogin
+    >('/api/auth/login/', data);
     return {
-      accessToken: '123',
-      refreshToken: '456',
+      accessToken: response.data.access,
     };
-    // TODO FIXME wait backend auth api
-    // return apiClient.post<TAuthorization>('/login/', data);
   },
 
   register: async (data: TRegister): Promise<TAuthorization> => {
-    return apiClient.post<TAuthorization>('/register/', data);
+    const response = await apiClient.post<
+      LoginResponse,
+      '/api/auth/register/',
+      TRegister
+    >('/api/auth/register/', data);
+    return {
+      accessToken: response.data.access,
+    };
   },
 
   logout: async (): Promise<void> => {
-    return apiClient.post<void>('/logout/');
+    await apiClient.post<void, '/api/auth/logout/'>('/api/auth/logout/');
   },
 
-  refresh: async (refreshToken: string): Promise<TAuthorization> => {
-    return apiClient.post<TAuthorization>('/refresh/', {
-      refresh_token: refreshToken,
-    });
+  refresh: async (): Promise<TAuthorization> => {
+    const response = await apiClient.post<LoginResponse, '/api/auth/refresh/'>(
+      '/api/auth/refresh/',
+    );
+    return {
+      accessToken: response.data.access,
+    };
   },
 
   getMe: async (): Promise<TUser> => {
-    return apiClient.get<TUser>('/users/me');
+    const response = await apiClient.get<TUser, '/api/users/me/'>(
+      '/api/users/me/',
+    );
+    return response.data;
   },
 };
