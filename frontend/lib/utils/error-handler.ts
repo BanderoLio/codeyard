@@ -1,5 +1,10 @@
 import type { AxiosError } from 'axios';
 
+/**
+ * Extracts error message from various error types.
+ * Note: For translated error messages, use this function within a component
+ * that has access to translations, or pass the default message through translations.
+ */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     const axiosError = error as AxiosError<{
@@ -23,5 +28,6 @@ export function getErrorMessage(error: unknown): string {
     }
     return error.message;
   }
+  // This default message should be translated at the call site
   return 'An unexpected error occurred';
 }

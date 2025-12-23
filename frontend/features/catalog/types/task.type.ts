@@ -1,7 +1,7 @@
 import type { TCategory } from './category.type';
 import type { TDifficulty } from './difficulty.type';
 
-export type TaskStatus = 'PRIVATE' | 'PUBLIC' | 'HIDDEN';
+export type ETaskStatus = 'PRIVATE' | 'PUBLIC' | 'HIDDEN';
 
 export type TProgrammingTask = {
   id: number;
@@ -11,7 +11,7 @@ export type TProgrammingTask = {
   difficulty: number;
   category: number;
   added_by: string;
-  status: TaskStatus;
+  status: ETaskStatus;
   created_at: string;
   updated_at: string;
 };

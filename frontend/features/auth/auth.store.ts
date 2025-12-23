@@ -1,28 +1,28 @@
 import type { TImmerStore } from '@/lib/zustand/types';
-import type { AppStore } from '@/lib/zustand/store';
+import type { TAppStore } from '@/lib/zustand/store';
 import { immer } from 'zustand/middleware/immer';
 import type { TAuthorization } from './types/authorization.type';
 import type { TUser } from './types/user.type';
 
-type State = {
+type TState = {
   authorization: TAuthorization | null;
   user: TUser | null;
 };
 
-type Actions = {
+type TActions = {
   setAuthorization: (authorization: TAuthorization | null) => void;
   setUser: (user: TUser | null) => void;
   getAccessToken: () => string | null;
 };
 
-export type AuthStore = State & Actions;
+export type TAuthStore = TState & TActions;
 
-const initialState: State = {
+const initialState: TState = {
   authorization: null,
   user: null,
 };
 
-export const authStore: TImmerStore<AuthStore, AppStore> = immer(
+export const authStore: TImmerStore<TAuthStore, TAppStore> = immer(
   (set, get) => ({
     ...initialState,
     setAuthorization: (authorization) =>

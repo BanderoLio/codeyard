@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,21 +23,19 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useMemo } from 'react';
-import type { TCreateSolution, TUpdateSolution } from '../types';
+import type { TCreateSolution, TSolution, TUpdateSolution } from '../types';
 import { getErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { CodeEditor } from '@/components/code-editor';
 import { useTranslations } from 'next-intl';
 
-const solutionSchema = z.object({
-  code: z.string().min(1, 'Code is required'),
-  language: z.number().min(1, 'Language is required'),
-  explanation: z.string().optional(),
-});
+type TSolutionFormData = {
+  code: string;
+  language: number;
+  explanation?: string;
+};
 
-type SolutionFormData = z.infer<typeof solutionSchema>;
-
-type SolutionFormProps = {
+type TSolutionFormProps = {
   taskId: number;
   solutionId?: number;
   initialData?: Partial<TCreateSolution>;
@@ -51,17 +49,24 @@ export function SolutionForm({
   initialData,
   onSuccess,
   onCancel,
-}: SolutionFormProps) {
+}: TSolutionFormProps) {
   const t = useTranslations('SolutionForm');
+  const tValidation = useTranslations('Validation');
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+
+  const solutionSchema = z.object({
+    code: z.string().min(1, tValidation('codeRequired')),
+    language: z.number().min(1, tValidation('languageRequired')),
+    explanation: z.string().optional(),
+  });
 
   const { data: languages } = useQuery({
     queryKey: ['languages'],
     queryFn: () => catalogApi.getLanguages(),
   });
 
-  const form = useForm<SolutionFormData>({
+  const form = useForm<TSolutionFormData>({
     resolver: zodResolver(solutionSchema),
     defaultValues: {
       code: initialData?.code || '',
@@ -73,7 +78,7 @@ export function SolutionForm({
   const createMutation = useMutation({
     mutationFn: (data: TCreateSolution) =>
       catalogApi.createSolution({ ...data, task: taskId }),
-    onMutate: async (newSolution) => {
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ['solutions', taskId] });
       const previousSolutions = queryClient.getQueryData(['solutions', taskId]);
       return { previousSolutions };
@@ -107,10 +112,13 @@ export function SolutionForm({
         'solution',
         solutionId,
       ]);
-      queryClient.setQueryData(['solution', solutionId], (old: any) => {
-        if (!old) return old;
-        return { ...old, ...updatedData };
-      });
+      queryClient.setQueryData(
+        ['solution', solutionId],
+        (old: TSolution | undefined) => {
+          if (!old) return old;
+          return { ...old, ...updatedData };
+        },
+      );
       return { previousSolutions, previousSolution };
     },
     onError: (error: Error, _, context) => {
@@ -138,7 +146,7 @@ export function SolutionForm({
     },
   });
 
-  const onSubmit = (data: SolutionFormData) => {
+  const onSubmit = (data: TSolutionFormData) => {
     setError(null);
     if (solutionId) {
       updateMutation.mutate(data);
@@ -152,7 +160,10 @@ export function SolutionForm({
   };
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
-  const selectedLanguage = form.watch('language');
+  const selectedLanguage = useWatch({
+    control: form.control,
+    name: 'language',
+  });
   const selectedLanguageName = useMemo(
     () => languages?.find((lang) => lang.id === selectedLanguage)?.name,
     [languages, selectedLanguage],

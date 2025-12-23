@@ -1,11 +1,11 @@
-import { authStore, type AuthStore } from '@/features/auth/auth.store';
+import { authStore, type TAuthStore } from '@/features/auth/auth.store';
 import { createStore } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
-export type AppStore = AuthStore;
+export type TAppStore = TAuthStore;
 
-export const createAppStore = createStore<AppStore>()(
+export const createAppStore = createStore<TAppStore>()(
   immer(
     persist(
       (...args) => ({
@@ -15,7 +15,7 @@ export const createAppStore = createStore<AppStore>()(
       {
         storage: createJSONStorage(() => localStorage),
         name: 'zustand-store',
-        partialize: (state): Partial<AppStore> => ({
+        partialize: (state): Partial<TAppStore> => ({
           authorization: state.authorization,
         }),
       },

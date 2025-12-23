@@ -86,6 +86,7 @@
     "loading": "Loading task details...",
     "loadingAria": "Loading task",
     "failedToLoad": "Failed to load task",
+    "failedToLoadTitle": "Failed to load task",
     "notFound": "Task not found",
     "backToCatalog": "Back to Catalog",
     "home": "Home",
@@ -128,7 +129,10 @@
     "unpublishSuccess": "Solution unpublished successfully",
     "publishSuccess": "Solution published successfully",
     "deleteSuccess": "Solution deleted successfully",
-    "reviewSuccess": "Review submitted successfully"
+    "reviewSuccess": "Review submitted successfully",
+    "noPermissionToEdit": "You do not have permission to edit this solution",
+    "solutionNotFound": "Solution not found",
+    "updateSuccess": "Solution updated successfully"
   },
   "SolutionForm": {
     "createTitle": "Create Solution",
@@ -170,6 +174,7 @@
     "create": "Create Task",
     "creating": "Creating...",
     "createSuccess": "Task created successfully",
+    "failedToCreateTask": "Failed to create task. Please try again.",
     "cancel": "Cancel"
   },
   "Auth": {
@@ -208,11 +213,34 @@
     "update": "Update",
     "back": "Back",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "unexpectedError": "An unexpected error occurred",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try again"
+  },
+  "Validation": {
+    "nameRequired": "Name is required",
+    "descriptionRequired": "Description is required",
+    "categoryRequired": "Category is required",
+    "difficultyRequired": "Difficulty is required",
+    "codeRequired": "Code is required",
+    "languageRequired": "Language is required",
+    "invalidUrl": "Invalid URL",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address"
   },
   "LocaleSwitcher": {
     "label": "Language",
     "en": "English",
     "ru": "Русский"
+  },
+  "Settings": {
+    "menuLabel": "Open settings menu",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language"
   }
 }

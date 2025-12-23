@@ -4,7 +4,7 @@ export type { TProgrammingLanguage } from './language.type';
 export type {
   TProgrammingTask,
   TProgrammingTaskDetail,
-  TaskStatus,
+  ETaskStatus,
 } from './task.type';
 export type {
   TSolution,
@@ -12,4 +12,4 @@ export type {
   TUpdateSolution,
   TPublishSolution,
 } from './solution.type';
-export type { TReview, TCreateReview, ReviewType } from './review.type';
+export type { TReview, TCreateReview, EReviewType } from './review.type';

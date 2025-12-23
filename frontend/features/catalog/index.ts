@@ -1,3 +1,15 @@
 export { catalogApi } from './catalog.api';
 export * from './types';
 export { SolutionForm } from './components/solution-form';
+export { SolutionCard } from './components/solution-card';
+export { TaskCard } from './components/task-card';
+export { TaskCardSkeleton } from './components/task-card-skeleton';
+export { CatalogFilters } from './components/catalog-filters';
+export { CatalogPagination } from './components/catalog-pagination';
+export { TaskHeader } from './components/task-header';
+export { SolutionsListContainer } from './components/solutions-list-container';
+export { SolutionsListPresentation } from './components/solutions-list-presentation';
+export { CatalogContainer } from './components/catalog-container';
+export { TaskDetailContainer } from './components/task-detail-container';
+export { CreateTaskContainer } from './components/create-task-container';
+export { EditSolutionContainer } from './components/edit-solution-container';
