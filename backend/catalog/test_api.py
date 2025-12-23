@@ -18,10 +18,10 @@ class ProgrammingTaskAPITests(APITestCase):
         self.other_user = User.objects.create_user(
             username="other", password="testpass123"
         )
-        self.category = models.Category.objects.create(
-            name="Sorting", description="Sorting algorithms"
+        self.category, _ = models.Category.objects.get_or_create(
+            name="Sorting", defaults={"description": "Sorting algorithms"}
         )
-        self.difficulty = models.Difficulty.objects.create(name="Medium")
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name="Medium")
         self.task = models.ProgrammingTask.objects.create(
             name="Merge Sort",
             description="Implement merge sort algorithm",
@@ -170,9 +170,9 @@ class SolutionAPITests(APITestCase):
         self.other_user = User.objects.create_user(
             username="solother", password="testpass123"
         )
-        self.category = models.Category.objects.create(name="DP")
-        self.difficulty = models.Difficulty.objects.create(name="Hard")
-        self.language = models.ProgrammingLanguage.objects.create(name="C++")
+        self.category, _ = models.Category.objects.get_or_create(name="DP")
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name="Hard")
+        self.language, _ = models.ProgrammingLanguage.objects.get_or_create(name="C++")
         self.task = models.ProgrammingTask.objects.create(
             name="LCS",
             description="Longest Common Subsequence",
@@ -281,9 +281,9 @@ class ReviewAPITests(APITestCase):
         self.reviewer = User.objects.create_user(
             username="reviewer", password="testpass123"
         )
-        self.category = models.Category.objects.create(name="Graphs")
-        self.difficulty = models.Difficulty.objects.create(name="Medium")
-        self.language = models.ProgrammingLanguage.objects.create(name="Python")
+        self.category, _ = models.Category.objects.get_or_create(name="Graphs")
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name="Medium")
+        self.language, _ = models.ProgrammingLanguage.objects.get_or_create(name="Python")
         self.task = models.ProgrammingTask.objects.create(
             name="BFS",
             description="Breadth First Search",

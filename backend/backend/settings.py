@@ -264,10 +264,6 @@ LOGGING = {
             "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
             "style": "{",
         },
-        "json": {
-            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
-            "format": "%(asctime)s %(name)s %(levelname)s %(message)s",
-        },
     },
     "filters": {
         "require_debug_false": {
@@ -288,10 +284,6 @@ LOGGING = {
             "maxBytes": 1024 * 1024 * 10,  # 10MB
             "backupCount": 5,
             "formatter": "verbose",
-        },
-        "mail_admins": {
-            "class": "django.utils.log.AdminEmailHandler",
-            "filters": ["require_debug_false"],
         },
     },
     "loggers": {

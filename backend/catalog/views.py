@@ -51,13 +51,20 @@ class ProgrammingTaskViewSet(viewsets.ModelViewSet):
         "category", "difficulty", "added_by"
     ).all()
     serializer_class = serializers.ProgrammingTaskSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     filterset_class = filters.TaskFilter
     search_fields = ("name",)
     ordering_fields = ("created_at",)
 
     def get_queryset(self):
         qs = super().get_queryset()
+        action = self.action or 'list'
+        
+        # For detail actions (update, delete), return all tasks to allow permission class to check ownership
+        if action in ['retrieve', 'update', 'partial_update', 'destroy']:
+            return qs
+        
+        # For list actions, filter based on visibility
         if not self.request.user.is_authenticated:
             return qs.filter(status=models.ProgrammingTask.TaskStatus.PUBLIC)
         return qs.filter(

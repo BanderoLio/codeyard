@@ -16,9 +16,9 @@ class CreateSolutionServiceTests(TestCase):
         self.user = User.objects.create_user(
             username="testuser", password="testpass123"
         )
-        self.category = models.Category.objects.create(name="Arrays")
-        self.difficulty = models.Difficulty.objects.create(name="Medium")
-        self.language = models.ProgrammingLanguage.objects.create(name="Python")
+        self.category, _ = models.Category.objects.get_or_create(name="Arrays")
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name="Medium")
+        self.language, _ = models.ProgrammingLanguage.objects.get_or_create(name="Python")
         self.task = models.ProgrammingTask.objects.create(
             name="Sum Array",
             description="Find sum of array elements",
@@ -89,9 +89,9 @@ class PublishSolutionServiceTests(TestCase):
         self.user = User.objects.create_user(
             username="testuser", password="testpass123"
         )
-        self.category = models.Category.objects.create(name="Strings")
-        self.difficulty = models.Difficulty.objects.create(name="Hard")
-        self.language = models.ProgrammingLanguage.objects.create(name="Java")
+        self.category, _ = models.Category.objects.get_or_create(name="Strings")
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name="Hard")
+        self.language, _ = models.ProgrammingLanguage.objects.get_or_create(name="Java")
         self.task = models.ProgrammingTask.objects.create(
             name="Palindrome Check",
             description="Check if string is palindrome",
@@ -131,9 +131,11 @@ class PublishSolutionServiceTests(TestCase):
 
     def test_unpublish_solution(self):
         """Test unpublishing a solution."""
+        from django.utils import timezone
+        
         # First publish it
         self.solution.is_public = True
-        self.solution.published_at = True
+        self.solution.published_at = timezone.now()
         self.solution.save()
 
         result = services.publish_solution(self.solution, make_public=False)
@@ -154,9 +156,9 @@ class CreateReviewServiceTests(TestCase):
         self.user2 = User.objects.create_user(
             username="user2", password="testpass123"
         )
-        self.category = models.Category.objects.create(name="Math")
-        self.difficulty = models.Difficulty.objects.create(name="Easy")
-        self.language = models.ProgrammingLanguage.objects.create(name="Python")
+        self.category, _ = models.Category.objects.get_or_create(name="Math")
+        self.difficulty, _ = models.Difficulty.objects.get_or_create(name="Easy")
+        self.language, _ = models.ProgrammingLanguage.objects.get_or_create(name="Python")
         self.task = models.ProgrammingTask.objects.create(
             name="Factorial",
             description="Calculate factorial",

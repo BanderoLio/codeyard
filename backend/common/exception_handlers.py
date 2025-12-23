@@ -1,16 +1,28 @@
-"""Custom exception handlers for API."""
+"""Custom exception handler for Django REST Framework.
 
+Provides unified error responses and secure logging without exposing
+sensitive internal details in production.
+"""
+
+import logging
 from django.conf import settings
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 def custom_exception_handler(exc, context):
-    """Custom exception handler for DRF."""
+    """Handle exceptions with unified format and secure logging.
+    
+    Args:
+        exc: Exception instance
+        context: Context dict with request and view info
+        
+    Returns:
+        Response with standardized error format or None for unhandled exceptions
+    """
     response = drf_exception_handler(exc, context)
 
     if response is None:

@@ -75,6 +75,7 @@ class CookieTokenRefreshView(CookieMixin, TokenRefreshView):
     ratelimit(key="ip", rate="5/m", block=True), name="dispatch"
 )
 class RegisterView(CookieMixin, APIView):
+    serializer_class = RegisterSerializer
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
@@ -92,6 +93,7 @@ class RegisterView(CookieMixin, APIView):
 
 
 class MeView(APIView):
+    serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
@@ -100,6 +102,7 @@ class MeView(APIView):
 
 
 class LogoutView(CookieMixin, APIView):
+    serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):

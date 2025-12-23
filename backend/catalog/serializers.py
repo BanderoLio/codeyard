@@ -1,3 +1,9 @@
+"""Serializers for catalog models with centralized validation.
+
+These serializers handle data validation, sanitization, and transformation
+for API requests/responses.
+"""
+
 from __future__ import annotations
 
 from django.contrib.auth import get_user_model
@@ -9,6 +15,8 @@ User = get_user_model()
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Serializer for Category model (reference data)."""
+    
     class Meta:
         model = models.Category
         fields = ("id", "name", "description", "created_at", "updated_at")
@@ -16,6 +24,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class DifficultySerializer(serializers.ModelSerializer):
+    """Serializer for Difficulty model (reference data)."""
+    
     class Meta:
         model = models.Difficulty
         fields = ("id", "name", "created_at", "updated_at")
@@ -23,6 +33,8 @@ class DifficultySerializer(serializers.ModelSerializer):
 
 
 class ProgrammingLanguageSerializer(serializers.ModelSerializer):
+    """Serializer for ProgrammingLanguage model (reference data)."""
+    
     class Meta:
         model = models.ProgrammingLanguage
         fields = ("id", "name", "created_at", "updated_at")
@@ -30,6 +42,15 @@ class ProgrammingLanguageSerializer(serializers.ModelSerializer):
 
 
 class ProgrammingTaskSerializer(serializers.ModelSerializer):
+    """Serializer for ProgrammingTask model with comprehensive validation.
+    
+    Validates:
+    - Task name length and uniqueness per user
+    - Description length
+    - URL format for resource link
+    - Ensures HTML is sanitized in all text fields
+    """
+    
     added_by = serializers.StringRelatedField(read_only=True)
 
     class Meta:
@@ -55,19 +76,23 @@ class ProgrammingTaskSerializer(serializers.ModelSerializer):
         )
 
     def validate_name(self, value: str) -> str:
+        """Validate and sanitize task name."""
         validators.validate_task_name_length(value)
         return validators.sanitize_html(value.strip())
 
     def validate_description(self, value: str) -> str:
+        """Validate and sanitize task description."""
         validators.validate_description_length(value)
         return validators.sanitize_html(value.strip())
 
     def validate_resource(self, value: str) -> str:
+        """Validate and sanitize resource URL."""
         if value:
             validators.validate_url_format(value)
         return validators.sanitize_html(value.strip())
 
     def validate(self, attrs):
+        """Validate task uniqueness and other constraints."""
         user = self.context["request"].user
         name = attrs.get("name")
 
@@ -83,6 +108,14 @@ class ProgrammingTaskSerializer(serializers.ModelSerializer):
 
 
 class SolutionSerializer(serializers.ModelSerializer):
+    """Serializer for Solution model with code validation.
+    
+    Validates:
+    - Code snippet length and non-empty content
+    - Explanation text length
+    - HTML sanitization for code and explanation
+    """
+    
     user = serializers.StringRelatedField(read_only=True)
     task_detail = ProgrammingTaskSerializer(source="task", read_only=True)
     language_name = serializers.CharField(
@@ -114,27 +147,14 @@ class SolutionSerializer(serializers.ModelSerializer):
         )
 
     def validate_code(self, value: str) -> str:
-        """Validate code field."""
-        if not isinstance(value, str) or not value.strip():
-            raise serializers.ValidationError(
-                "Код не может быть пустым."
-            )
-        if len(value.strip()) < 1:
-            raise serializers.ValidationError(
-                "Код должен содержать минимум 1 символ."
-            )
-        if len(value) > 1_000_000:
-            raise serializers.ValidationError(
-                "Код слишком длинный (максимум 1000000 символов)."
-            )
+        """Validate and sanitize code snippet."""
+        validators.validate_code_length(value)
         return validators.sanitize_html(value.strip())
 
     def validate_explanation(self, value: str) -> str:
+        """Validate and sanitize explanation text."""
         if value:
-            if len(value.strip()) > 100000:
-                raise serializers.ValidationError(
-                    "Объяснение слишком длинное (максимум 100000 символов)."
-                )
+            validators.validate_explanation_length(value)
         return validators.sanitize_html(value.strip())
 
     def create(self, validated_data):
@@ -150,6 +170,13 @@ class SolutionPublishSerializer(serializers.Serializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for Review model with ownership validation.
+    
+    Validates:
+    - User cannot review their own solution
+    - Only allows valid review types
+    """
+    
     added_by = serializers.StringRelatedField(read_only=True)
     solution = serializers.PrimaryKeyRelatedField(
         queryset=models.Solution.objects.all()
@@ -168,6 +195,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "added_by", "created_at", "updated_at")
 
     def validate(self, attrs):
+        """Validate that user is not reviewing their own solution."""
         request = self.context["request"]
         solution = attrs["solution"]
         if solution.user_id == request.user.id:
