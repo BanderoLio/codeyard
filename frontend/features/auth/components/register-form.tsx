@@ -17,8 +17,10 @@ import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
 import { getErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function RegisterForm() {
+  const t = useTranslations('Auth');
   const form = useForm<TRegister>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -45,7 +47,7 @@ export function RegisterForm() {
         console.error('Failed to fetch user data:', err);
       }
       queryClient.clear();
-      toast.success('Account created successfully');
+      toast.success(t('signupSuccess'));
       router.replace('/catalog');
     },
     onError: (err: Error) => {
@@ -70,8 +72,8 @@ export function RegisterForm() {
           <FormField
             control={form.control}
             render={({ field }) => (
-              <FormItem label="Username">
-                <Input placeholder="Enter your username" {...field} />
+              <FormItem label={t('usernameLabel')}>
+                <Input placeholder={t('usernamePlaceholder')} {...field} />
               </FormItem>
             )}
             name="username"
@@ -79,8 +81,12 @@ export function RegisterForm() {
           <FormField
             control={form.control}
             render={({ field }) => (
-              <FormItem label="Email">
-                <Input type="email" placeholder="Enter your email" {...field} />
+              <FormItem label={t('emailLabel')}>
+                <Input
+                  type="email"
+                  placeholder={t('emailPlaceholder')}
+                  {...field}
+                />
               </FormItem>
             )}
             name="email"
@@ -88,10 +94,10 @@ export function RegisterForm() {
           <FormField
             control={form.control}
             render={({ field }) => (
-              <FormItem label="Password">
+              <FormItem label={t('passwordLabel')}>
                 <Input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t('passwordPlaceholder')}
                   {...field}
                 />
               </FormItem>
@@ -105,7 +111,7 @@ export function RegisterForm() {
             className="mt-2"
             type="submit"
             disabled={registerMutation.isPending}
-            label="Sign Up"
+            label={t('signup')}
           >
             {registerMutation.isPending ? <Spinner /> : <UserPlusIcon />}
           </IconButton>

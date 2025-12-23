@@ -32,6 +32,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useTranslations } from 'next-intl';
 
 function TaskCardSkeleton() {
   return (
@@ -63,6 +64,7 @@ function TaskCard({
   difficulties?: TDifficulty[];
 }) {
   const queryClient = useQueryClient();
+  const t = useTranslations('Catalog');
   const category = categories?.find((c) => c.id === task.category);
   const difficulty = difficulties?.find((d) => d.id === task.difficulty);
 
@@ -104,7 +106,9 @@ function TaskCard({
           )}
         </div>
         <div className="text-muted-foreground mt-4 flex items-center gap-2 border-t pt-3 text-xs">
-          <span className="font-medium">By {task.added_by}</span>
+          <span className="font-medium">
+            {t('by')} {task.added_by}
+          </span>
           <span>•</span>
           <time dateTime={task.created_at}>
             {new Date(task.created_at).toLocaleDateString()}
@@ -118,6 +122,8 @@ function TaskCard({
 type SortOption = 'created_at' | '-created_at' | 'name' | '-name';
 
 export function CatalogPage() {
+  const t = useTranslations('Catalog');
+  const tBreadcrumbs = useTranslations('Breadcrumbs');
   const router = useRouter();
   const searchParams = useSearchParams() ?? new URLSearchParams();
 
@@ -201,21 +207,21 @@ export function CatalogPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
+              <Link href="/">{tBreadcrumbs('home')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Catalog</BreadcrumbPage>
+            <BreadcrumbPage>{tBreadcrumbs('catalog')}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
       <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold sm:text-3xl">Task Catalog</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl">{t('title')}</h1>
         <Button asChild className="w-full sm:w-auto">
           <Link href="/catalog/create-task">
             <Plus className="mr-2 h-4 w-4" />
-            Create Task
+            {t('createTask')}
           </Link>
         </Button>
       </div>
@@ -224,14 +230,14 @@ export function CatalogPage() {
         <div className="relative">
           <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
-            placeholder="Search tasks..."
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
             className="pl-9"
-            aria-label="Search tasks"
+            aria-label={t('searchPlaceholder')}
           />
         </div>
 
@@ -242,11 +248,11 @@ export function CatalogPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger aria-label="Filter by category">
-            <SelectValue placeholder="All Categories" />
+          <SelectTrigger aria-label={t('allCategories')}>
+            <SelectValue placeholder={t('allCategories')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="all">{t('allCategories')}</SelectItem>
             {categories?.map((cat) => (
               <SelectItem key={cat.id} value={cat.id.toString()}>
                 {cat.name}
@@ -262,11 +268,11 @@ export function CatalogPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger aria-label="Filter by difficulty">
-            <SelectValue placeholder="All Difficulties" />
+          <SelectTrigger aria-label={t('allDifficulties')}>
+            <SelectValue placeholder={t('allDifficulties')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Difficulties</SelectItem>
+            <SelectItem value="all">{t('allDifficulties')}</SelectItem>
             {difficulties?.map((diff) => (
               <SelectItem key={diff.id} value={diff.id.toString()}>
                 {diff.name}
@@ -282,32 +288,32 @@ export function CatalogPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger aria-label="Sort tasks">
-            <SelectValue placeholder="Sort by" />
+          <SelectTrigger aria-label={t('sortBy')}>
+            <SelectValue placeholder={t('sortBy')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="-created_at">
               <span className="flex items-center gap-2">
                 <ArrowDown className="h-4 w-4" />
-                Newest first
+                {t('sortNewest')}
               </span>
             </SelectItem>
             <SelectItem value="created_at">
               <span className="flex items-center gap-2">
                 <ArrowUp className="h-4 w-4" />
-                Oldest first
+                {t('sortOldest')}
               </span>
             </SelectItem>
             <SelectItem value="name">
               <span className="flex items-center gap-2">
                 <ArrowUpDown className="h-4 w-4" />
-                Name A-Z
+                {t('sortNameAsc')}
               </span>
             </SelectItem>
             <SelectItem value="-name">
               <span className="flex items-center gap-2">
                 <ArrowUpDown className="h-4 w-4" />
-                Name Z-A
+                {t('sortNameDesc')}
               </span>
             </SelectItem>
           </SelectContent>
@@ -335,18 +341,16 @@ export function CatalogPage() {
         <div className="bg-card border-muted flex flex-col items-center justify-center rounded-lg border py-12 text-center sm:py-16">
           <div className="mb-4 text-4xl sm:text-6xl">📋</div>
           <h3 className="mb-2 text-lg font-semibold sm:text-xl">
-            No tasks found
+            {t('noTasks')}
           </h3>
           <p className="text-muted-foreground mb-4 max-w-md px-4 text-sm sm:text-base">
-            {debouncedSearch || categoryFilter || difficultyFilter
-              ? 'Try adjusting your filters or search query to find more tasks.'
-              : 'Be the first to create a task and share it with the community!'}
+            {t('noTasksDesc')}
           </p>
           {!debouncedSearch && !categoryFilter && !difficultyFilter && (
             <Button asChild className="w-full sm:w-auto">
               <Link href="/catalog/create-task">
                 <Plus className="mr-2 h-4 w-4" />
-                Create Task
+                {t('createTask')}
               </Link>
             </Button>
           )}
@@ -370,25 +374,25 @@ export function CatalogPage() {
               aria-label="Pagination"
             >
               <div className="text-muted-foreground text-sm" aria-live="polite">
-                Page {page} of {totalPages > 0 ? totalPages : 1} • {totalCount}{' '}
-                {totalCount === 1 ? 'task' : 'tasks'} total
+                {t('page')} {page} {t('of')} {totalPages > 0 ? totalPages : 1} •{' '}
+                {totalCount} {totalCount === 1 ? t('task') : t('tasks')}
               </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={!hasPrevious}
-                  aria-label="Go to previous page"
+                  aria-label={t('previous')}
                 >
-                  Previous
+                  {t('previous')}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setPage((p) => p + 1)}
                   disabled={!hasNext}
-                  aria-label="Go to next page"
+                  aria-label={t('next')}
                 >
-                  Next
+                  {t('next')}
                 </Button>
               </div>
             </nav>

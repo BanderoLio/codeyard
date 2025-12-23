@@ -17,8 +17,10 @@ import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
 import { getErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function LoginForm() {
+  const t = useTranslations('Auth');
   const form = useForm<TLogin>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -44,7 +46,7 @@ export function LoginForm() {
         console.error('Failed to fetch user data:', err);
       }
       queryClient.clear();
-      toast.success('Logged in successfully');
+      toast.success(t('loginSuccess'));
       router.replace('/catalog');
     },
     onError: (err: Error) => {
@@ -69,8 +71,8 @@ export function LoginForm() {
           <FormField
             control={form.control}
             render={({ field }) => (
-              <FormItem label="Username">
-                <Input placeholder="Enter your username" {...field} />
+              <FormItem label={t('usernameLabel')}>
+                <Input placeholder={t('usernamePlaceholder')} {...field} />
               </FormItem>
             )}
             name="username"
@@ -78,10 +80,10 @@ export function LoginForm() {
           <FormField
             control={form.control}
             render={({ field }) => (
-              <FormItem label="Password">
+              <FormItem label={t('passwordLabel')}>
                 <Input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t('passwordPlaceholder')}
                   {...field}
                 />
               </FormItem>
@@ -95,7 +97,7 @@ export function LoginForm() {
             className="mt-2"
             type="submit"
             disabled={loginMutation.isPending}
-            label="Log In"
+            label={t('login')}
           >
             {loginMutation.isPending ? <Spinner /> : <LogInIcon />}
           </IconButton>

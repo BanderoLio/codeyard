@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { LoginForm } from '@/features/auth';
 import { Link } from '@/navigation';
+import { useTranslations } from 'next-intl';
 
 type AuthModalProps = {
   open: boolean;
@@ -16,22 +17,21 @@ type AuthModalProps = {
 };
 
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+  const t = useTranslations('Auth');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Login Required</DialogTitle>
-          <DialogDescription>
-            Please log in to access this feature.
-          </DialogDescription>
+          <DialogTitle>{t('loginRequired')}</DialogTitle>
+          <DialogDescription>{t('loginRequiredDesc')}</DialogDescription>
         </DialogHeader>
         <div className="py-4">
           <LoginForm />
         </div>
         <div className="text-muted-foreground text-center text-sm">
-          Don&apos;t have an account?{' '}
+          {t('noAccount')}{' '}
           <Link href="/auth/register" className="text-primary hover:underline">
-            Sign up
+            {t('signUpLink')}
           </Link>
         </div>
       </DialogContent>

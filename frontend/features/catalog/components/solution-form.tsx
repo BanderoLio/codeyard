@@ -27,6 +27,7 @@ import type { TCreateSolution, TUpdateSolution } from '../types';
 import { getErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { CodeEditor } from '@/components/code-editor';
+import { useTranslations } from 'next-intl';
 
 const solutionSchema = z.object({
   code: z.string().min(1, 'Code is required'),
@@ -51,6 +52,7 @@ export function SolutionForm({
   onSuccess,
   onCancel,
 }: SolutionFormProps) {
+  const t = useTranslations('SolutionForm');
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
@@ -73,10 +75,7 @@ export function SolutionForm({
       catalogApi.createSolution({ ...data, task: taskId }),
     onMutate: async (newSolution) => {
       await queryClient.cancelQueries({ queryKey: ['solutions', taskId] });
-      const previousSolutions = queryClient.getQueryData([
-        'solutions',
-        taskId,
-      ]);
+      const previousSolutions = queryClient.getQueryData(['solutions', taskId]);
       return { previousSolutions };
     },
     onError: (error: Error, _, context) => {
@@ -92,7 +91,7 @@ export function SolutionForm({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solutions', taskId] });
-      toast.success('Solution created successfully');
+      toast.success(t('createSuccess'));
       onSuccess();
     },
   });
@@ -103,10 +102,7 @@ export function SolutionForm({
     onMutate: async (updatedData) => {
       await queryClient.cancelQueries({ queryKey: ['solutions', taskId] });
       await queryClient.cancelQueries({ queryKey: ['solution', solutionId] });
-      const previousSolutions = queryClient.getQueryData([
-        'solutions',
-        taskId,
-      ]);
+      const previousSolutions = queryClient.getQueryData(['solutions', taskId]);
       const previousSolution = queryClient.getQueryData([
         'solution',
         solutionId,
@@ -137,7 +133,7 @@ export function SolutionForm({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solutions', taskId] });
       queryClient.invalidateQueries({ queryKey: ['solution', solutionId] });
-      toast.success('Solution updated successfully');
+      toast.success(t('updateSuccess'));
       onSuccess();
     },
   });
@@ -164,12 +160,12 @@ export function SolutionForm({
 
   return (
     <div className="bg-card rounded-lg border shadow-sm">
-      <div className="border-b bg-muted/30 px-4 py-3 sm:px-6">
+      <div className="bg-muted/30 border-b px-4 py-3 sm:px-6">
         <h3 className="text-base font-semibold sm:text-lg">
-          {solutionId ? 'Edit Solution' : 'Create Solution'}
+          {solutionId ? t('editTitle') : t('createTitle')}
         </h3>
         <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
-          Write your solution code with syntax highlighting
+          {t('subtitle')}
         </p>
       </div>
       <div className="p-4 sm:p-6">
@@ -188,7 +184,7 @@ export function SolutionForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-base">
-                        Programming Language
+                        {t('languageLabel')}
                       </FormLabel>
                       <FormControl>
                         <Select
@@ -198,7 +194,9 @@ export function SolutionForm({
                           }
                         >
                           <SelectTrigger className="h-10">
-                            <SelectValue placeholder="Select programming language" />
+                            <SelectValue
+                              placeholder={t('languagePlaceholder')}
+                            />
                           </SelectTrigger>
                           <SelectContent>
                             {languages?.map((lang) => (
@@ -213,8 +211,7 @@ export function SolutionForm({
                         </Select>
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
-                        Select the language for syntax highlighting and better
-                        code editing experience.
+                        {t('languageHint')}
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -227,19 +224,21 @@ export function SolutionForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-base">
-                        Explanation{' '}
-                        <span className="text-muted-foreground">(optional)</span>
+                        {t('explanationLabel')}{' '}
+                        <span className="text-muted-foreground">
+                          ({t('explanationOptional')})
+                        </span>
                       </FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Explain your solution approach, time complexity, space complexity, or any other notes..."
+                          placeholder={t('explanationPlaceholder')}
                           {...field}
                           rows={8}
                           className="resize-y"
                         />
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
-                        Add any additional context about your solution.
+                        {t('explanationHint')}
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -252,22 +251,23 @@ export function SolutionForm({
                   control={form.control}
                   name="code"
                   render={({ field }) => (
-                    <FormItem className="h-full flex flex-col">
-                      <FormLabel className="text-base">Solution Code</FormLabel>
+                    <FormItem className="flex h-full flex-col">
+                      <FormLabel className="text-base">
+                        {t('codeLabel')}
+                      </FormLabel>
                       <FormControl>
                         <CodeEditor
                           value={field.value}
                           onChange={field.onChange}
                           language={selectedLanguageName}
-                          placeholder="Enter your solution code here..."
+                          placeholder={t('codePlaceholder')}
                           minHeight="400px"
                           maxHeight="calc(100vh - 300px)"
                           className="border-input bg-background flex-1"
                         />
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
-                        Code editor with syntax highlighting. Select a language
-                        for better support.
+                        {t('codeHint')}
                       </p>
                       <FormMessage />
                     </FormItem>
@@ -277,31 +277,31 @@ export function SolutionForm({
             </div>
 
             <div className="mt-6 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              className="w-full sm:w-auto"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full sm:w-auto"
-            >
-              {isLoading
-                ? solutionId
-                  ? 'Updating...'
-                  : 'Creating...'
-                : solutionId
-                  ? 'Update Solution'
-                  : 'Create Solution'}
-            </Button>
-          </div>
-        </form>
-      </Form>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="w-full sm:w-auto"
+                disabled={isLoading}
+              >
+                {t('cancel')}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
+                {isLoading
+                  ? solutionId
+                    ? t('updating')
+                    : t('creating')
+                  : solutionId
+                    ? t('update')
+                    : t('create')}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );

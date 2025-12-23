@@ -38,6 +38,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { useTranslations } from 'next-intl';
 
 const taskSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
@@ -50,6 +51,8 @@ const taskSchema = z.object({
 type TaskFormData = z.infer<typeof taskSchema>;
 
 export function CreateTaskPage() {
+  const t = useTranslations('CreateTask');
+  const tBreadcrumbs = useTranslations('Breadcrumbs');
   useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -81,7 +84,7 @@ export function CreateTaskPage() {
     mutationFn: catalogApi.createTask,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
-      toast.success('Task created successfully');
+      toast.success(t('createSuccess'));
       const taskId = data?.id;
       if (taskId !== undefined && taskId !== null) {
         const id = Number(taskId);
@@ -119,24 +122,24 @@ export function CreateTaskPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
+              <Link href="/">{tBreadcrumbs('home')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/catalog">Catalog</Link>
+              <Link href="/catalog">{tBreadcrumbs('catalog')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Create Task</BreadcrumbPage>
+            <BreadcrumbPage>{t('createTask')}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       <div className="bg-card rounded-lg border p-4 shadow-sm sm:p-6">
-        <h1 className="mb-6 text-xl font-bold sm:text-2xl">Create New Task</h1>
+        <h1 className="mb-6 text-xl font-bold sm:text-2xl">{t('title')}</h1>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -149,8 +152,8 @@ export function CreateTaskPage() {
               control={form.control}
               name="name"
               render={({ field }) => (
-                <CustomFormItem label="Task Name">
-                  <Input placeholder="Enter task name" {...field} />
+                <CustomFormItem label={t('nameLabel')}>
+                  <Input placeholder={t('namePlaceholder')} {...field} />
                 </CustomFormItem>
               )}
             />
@@ -159,9 +162,9 @@ export function CreateTaskPage() {
               control={form.control}
               name="description"
               render={({ field }) => (
-                <CustomFormItem label="Description">
+                <CustomFormItem label={t('descriptionLabel')}>
                   <Textarea
-                    placeholder="Enter task description"
+                    placeholder={t('descriptionPlaceholder')}
                     rows={6}
                     {...field}
                   />
@@ -173,10 +176,10 @@ export function CreateTaskPage() {
               control={form.control}
               name="resource"
               render={({ field }) => (
-                <CustomFormItem label="Resource URL (optional)">
+                <CustomFormItem label={t('resourceLabel')}>
                   <Input
                     type="url"
-                    placeholder="https://example.com/task"
+                    placeholder={t('resourcePlaceholder')}
                     {...field}
                   />
                 </CustomFormItem>
@@ -188,7 +191,7 @@ export function CreateTaskPage() {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category</FormLabel>
+                  <FormLabel>{t('categoryLabel')}</FormLabel>
                   <Select
                     value={field.value?.toString()}
                     onValueChange={(value: string) =>
@@ -197,7 +200,7 @@ export function CreateTaskPage() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder={t('categoryPlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -218,7 +221,7 @@ export function CreateTaskPage() {
               name="difficulty"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Difficulty</FormLabel>
+                  <FormLabel>{t('difficultyLabel')}</FormLabel>
                   <Select
                     value={field.value?.toString()}
                     onValueChange={(value: string) =>
@@ -227,7 +230,7 @@ export function CreateTaskPage() {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select difficulty" />
+                        <SelectValue placeholder={t('difficultyPlaceholder')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -251,14 +254,14 @@ export function CreateTaskPage() {
                 className="w-full sm:w-auto"
                 disabled={createMutation.isPending}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 type="submit"
                 disabled={createMutation.isPending}
                 className="w-full sm:w-auto"
               >
-                {createMutation.isPending ? 'Creating...' : 'Create Task'}
+                {createMutation.isPending ? t('creating') : t('create')}
               </Button>
             </div>
           </form>

@@ -6,9 +6,15 @@ import { Button } from '@/components/ui/button';
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import { Link } from '@/navigation';
 import { Plus, ThumbsUp, ThumbsDown, ExternalLink, Trash2 } from 'lucide-react';
-import { SolutionForm } from '@/features/catalog/components/solution-form';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const SolutionForm = lazy(() =>
+  import('@/features/catalog/components/solution-form').then((mod) => ({
+    default: mod.SolutionForm,
+  })),
+);
+
 import { getErrorMessage } from '@/lib/utils/error-handler';
 import { CodeBlock } from '@/components/code-block';
 import { toast } from 'sonner';
@@ -22,6 +28,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import type { TReview, TSolution } from '@/features/catalog/types';
+import { useTranslations } from 'next-intl';
 
 function SolutionCard({
   solution,
@@ -30,6 +37,7 @@ function SolutionCard({
   solution: TSolution;
   taskId: number;
 }) {
+  const t = useTranslations('TaskDetail');
   const user = useAppStoreApi().use.user();
   const queryClient = useQueryClient();
   const [publishError, setPublishError] = useState<string | null>(null);
@@ -67,7 +75,7 @@ function SolutionCard({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews', solution.id] });
-      toast.success('Review submitted successfully');
+      toast.success(t('reviewSuccess'));
     },
   });
 
@@ -117,9 +125,7 @@ function SolutionCard({
       queryClient.invalidateQueries({ queryKey: ['solutions', taskId] });
       queryClient.invalidateQueries({ queryKey: ['solution', solution.id] });
       toast.success(
-        solution.is_public
-          ? 'Solution unpublished successfully'
-          : 'Solution published successfully',
+        solution.is_public ? t('unpublishSuccess') : t('publishSuccess'),
       );
     },
   });
@@ -155,7 +161,7 @@ function SolutionCard({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['solutions', taskId] });
-      toast.success('Solution deleted successfully');
+      toast.success(t('deleteSuccess'));
     },
   });
 
@@ -174,21 +180,22 @@ function SolutionCard({
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-base font-semibold sm:text-lg">
-              {solution.language_name || 'Unknown Language'}
+              {solution.language_name || t('unknownLanguage')}
             </h3>
             {solution.is_public && (
               <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
-                Public
+                {t('public')}
               </span>
             )}
           </div>
           <p className="text-muted-foreground mt-1 text-sm">
-            By {solution.user} •{' '}
+            {t('by')} {solution.user} •{' '}
             {new Date(solution.created_at).toLocaleDateString()}
             {solution.is_public && solution.published_at && (
               <>
                 {' • '}
-                Published {new Date(solution.published_at).toLocaleDateString()}
+                {t('published')}{' '}
+                {new Date(solution.published_at).toLocaleDateString()}
               </>
             )}
           </p>
@@ -205,28 +212,26 @@ function SolutionCard({
                     publishMutation.mutate(true);
                   }}
                   disabled={publishMutation.isPending}
-                  aria-label="Publish solution"
+                  aria-label={t('publishAria')}
                 >
-                  {publishMutation.isPending ? 'Publishing...' : 'Publish'}
+                  {publishMutation.isPending ? t('publishing') : t('publish')}
                 </Button>
               )}
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/catalog/${taskId}/solutions/${solution.id}/edit`}>
-                  Edit
+                  {t('edit')}
                 </Link>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  if (
-                    confirm('Are you sure you want to delete this solution?')
-                  ) {
+                  if (confirm(t('deleteConfirm'))) {
                     deleteMutation.mutate();
                   }
                 }}
                 disabled={deleteMutation.isPending}
-                aria-label="Delete solution"
+                aria-label={t('deleteAria')}
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </Button>
@@ -242,7 +247,7 @@ function SolutionCard({
 
       {solution.explanation && (
         <div className="mb-4">
-          <h4 className="mb-2 text-sm font-semibold">Explanation</h4>
+          <h4 className="mb-2 text-sm font-semibold">{t('explanation')}</h4>
           <p className="text-muted-foreground text-sm whitespace-pre-wrap">
             {solution.explanation}
           </p>
@@ -251,7 +256,7 @@ function SolutionCard({
 
       <div className="mb-4">
         <h4 className="mb-2 text-sm font-semibold" id={`code-${solution.id}`}>
-          Code
+          {t('code')}
         </h4>
         <div role="region" aria-labelledby={`code-${solution.id}`}>
           <CodeBlock
@@ -263,7 +268,7 @@ function SolutionCard({
       </div>
 
       {canReview && (
-        <div className="flex gap-2" role="group" aria-label="Review solution">
+        <div className="flex gap-2" role="group" aria-label={t('reviewAria')}>
           <Button
             variant="outline"
             size="sm"
@@ -274,10 +279,10 @@ function SolutionCard({
               });
             }}
             disabled={createReviewMutation.isPending}
-            aria-label="Like this solution"
+            aria-label={t('likeAria')}
           >
             <ThumbsUp className="mr-2 h-4 w-4" aria-hidden="true" />
-            Like
+            {t('like')}
           </Button>
           <Button
             variant="outline"
@@ -289,10 +294,10 @@ function SolutionCard({
               });
             }}
             disabled={createReviewMutation.isPending}
-            aria-label="Dislike this solution"
+            aria-label={t('dislikeAria')}
           >
             <ThumbsDown className="mr-2 h-4 w-4" aria-hidden="true" />
-            Dislike
+            {t('dislike')}
           </Button>
         </div>
       )}
@@ -301,15 +306,15 @@ function SolutionCard({
         <div
           className="mt-4 flex gap-4 text-sm"
           role="group"
-          aria-label="Solution reviews summary"
+          aria-label={t('reviewsSummaryAria')}
         >
           <span className="text-muted-foreground flex items-center gap-1">
             <ThumbsUp className="h-4 w-4" aria-hidden="true" />
-            {positiveReviews} {positiveReviews === 1 ? 'like' : 'likes'}
+            {t('likeCount', { count: positiveReviews })}
           </span>
           <span className="text-muted-foreground flex items-center gap-1">
             <ThumbsDown className="h-4 w-4" aria-hidden="true" />
-            {negativeReviews} {negativeReviews === 1 ? 'dislike' : 'dislikes'}
+            {t('dislikeCount', { count: negativeReviews })}
           </span>
         </div>
       )}
@@ -318,6 +323,8 @@ function SolutionCard({
 }
 
 export function TaskDetailPage({ taskId }: { taskId: number }) {
+  const t = useTranslations('TaskDetail');
+  const tBreadcrumbs = useTranslations('Breadcrumbs');
   const user = useAppStoreApi().use.user();
   const [showSolutionForm, setShowSolutionForm] = useState(false);
 
@@ -362,7 +369,7 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
       <div
         className="container mx-auto max-w-4xl px-4 py-4 sm:py-8"
         role="status"
-        aria-label="Loading task"
+        aria-label={t('loadingAria')}
       >
         <Skeleton className="mb-4 h-10 w-32" />
         <Skeleton className="mb-4 h-8 w-3/4" />
@@ -372,7 +379,7 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
         </div>
         <Skeleton className="mb-8 h-32 w-full" />
         <Skeleton className="h-64 w-full" />
-        <span className="sr-only">Loading task details...</span>
+        <span className="sr-only">{t('loading')}</span>
       </div>
     );
   }
@@ -398,9 +405,9 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-4 sm:py-8">
         <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold">Task not found</h1>
+          <h1 className="mb-4 text-2xl font-bold">{t('notFound')}</h1>
           <Button asChild>
-            <Link href="/catalog">Back to Catalog</Link>
+            <Link href="/catalog">{t('backToCatalog')}</Link>
           </Button>
         </div>
       </div>
@@ -413,13 +420,13 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
+              <Link href="/">{tBreadcrumbs('home')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/catalog">Catalog</Link>
+              <Link href="/catalog">{tBreadcrumbs('catalog')}</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -435,7 +442,7 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
         <div
           className="mb-4 flex flex-wrap items-center gap-2"
           role="group"
-          aria-label="Task metadata"
+          aria-label={t('category') + ', ' + t('difficulty')}
         >
           {categories?.find((c) => c.id === task.category) && (
             <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm font-medium">
@@ -454,9 +461,9 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary mb-4 inline-flex items-center gap-1 hover:underline"
-            aria-label="View original task (opens in new tab)"
+            aria-label={`${t('viewOriginal')} (${t('opensInNewTab')})`}
           >
-            View original task{' '}
+            {t('viewOriginal')}{' '}
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
         )}
@@ -466,32 +473,47 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
       </div>
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold sm:text-2xl">Solutions</h2>
+        <h2 className="text-xl font-semibold sm:text-2xl">{t('solutions')}</h2>
         {user && (
           <Button
             onClick={() => setShowSolutionForm(true)}
             className="w-full sm:w-auto"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Solution
+            {t('addSolution')}
           </Button>
         )}
       </div>
 
       {showSolutionForm && (
         <div className="mb-6">
-          <SolutionForm
-            taskId={taskId}
-            onSuccess={() => {
-              setShowSolutionForm(false);
-            }}
-            onCancel={() => setShowSolutionForm(false)}
-          />
+          <Suspense
+            fallback={
+              <div className="bg-card rounded-lg border p-6 shadow-sm">
+                <Skeleton className="mb-4 h-6 w-48" />
+                <Skeleton className="mb-4 h-4 w-full" />
+                <Skeleton className="mb-6 h-32 w-full" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+            }
+          >
+            <SolutionForm
+              taskId={taskId}
+              onSuccess={() => {
+                setShowSolutionForm(false);
+              }}
+              onCancel={() => setShowSolutionForm(false)}
+            />
+          </Suspense>
         </div>
       )}
 
       {solutionsLoading ? (
-        <div className="space-y-4" role="status" aria-label="Loading solutions">
+        <div
+          className="space-y-4"
+          role="status"
+          aria-label={t('loadingSolutions')}
+        >
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="bg-card rounded-lg border p-6 shadow-sm">
               <Skeleton className="mb-4 h-6 w-1/4" />
@@ -500,11 +522,11 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
               <Skeleton className="h-4 w-1/3" />
             </div>
           ))}
-          <span className="sr-only">Loading solutions...</span>
+          <span className="sr-only">{t('loadingSolutions')}</span>
         </div>
       ) : solutionsError ? (
         <ErrorDisplay
-          title="Failed to load solutions"
+          title={t('failedToLoadSolutions')}
           message={getErrorMessage(solutionsError)}
           onRetry={() => refetchSolutions()}
         />
@@ -516,7 +538,7 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
                 id="my-solutions-heading"
                 className="mb-4 text-xl font-semibold"
               >
-                My Solutions
+                {t('mySolutions')}
               </h3>
               <div className="space-y-4" role="list">
                 {userSolutions.map((solution) => (
@@ -534,7 +556,9 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
                 id="public-solutions-heading"
                 className="mb-4 text-xl font-semibold"
               >
-                {userSolutions.length > 0 ? 'Public Solutions' : 'Solutions'}
+                {userSolutions.length > 0
+                  ? t('publicSolutions')
+                  : t('solutions')}
               </h3>
               <div className="space-y-4" role="list">
                 {publicSolutions.map((solution) => (
@@ -555,10 +579,10 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
                 💡
               </div>
               <h3 className="mb-2 text-lg font-semibold sm:text-xl">
-                No solutions yet
+                {t('noSolutions')}
               </h3>
               <p className="text-muted-foreground mb-4 max-w-md px-4 text-sm sm:text-base">
-                Be the first to add a solution to this task!
+                {t('noSolutionsDesc')}
               </p>
               {user && (
                 <Button
@@ -566,7 +590,7 @@ export function TaskDetailPage({ taskId }: { taskId: number }) {
                   className="w-full sm:w-auto"
                 >
                   <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-                  Add Solution
+                  {t('addSolution')}
                 </Button>
               )}
             </div>
