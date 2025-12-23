@@ -19,9 +19,11 @@ type CodeBlockProps = {
 };
 
 const languageMap: Record<string, string> = {
+  // Python
   python: 'python',
   python3: 'python',
   py: 'python',
+  // JavaScript/TypeScript
   javascript: 'javascript',
   js: 'javascript',
   node: 'javascript',
@@ -29,39 +31,170 @@ const languageMap: Record<string, string> = {
   typescript: 'typescript',
   ts: 'typescript',
   tsx: 'tsx',
+  jsx: 'jsx',
+  // Java/Kotlin
   java: 'java',
   kotlin: 'kotlin',
+  kt: 'kotlin',
+  // Swift/Objective-C
   swift: 'swift',
+  objc: 'objectivec',
+  objectivec: 'objectivec',
+  'objective-c': 'objectivec',
+  // C/C++
   cpp: 'cpp',
   'c++': 'cpp',
   c: 'c',
+  cxx: 'cpp',
+  // C#
   csharp: 'csharp',
   'c#': 'csharp',
+  cs: 'csharp',
+  // Go
   go: 'go',
   golang: 'go',
+  // Rust
   rust: 'rust',
+  rs: 'rust',
+  // PHP
   php: 'php',
+  // Ruby
   ruby: 'ruby',
   rb: 'ruby',
+  // Other
+  html: 'markup',
+  css: 'css',
+  sql: 'sql',
+  bash: 'bash',
+  shell: 'bash',
+  sh: 'bash',
+  json: 'json',
+  yaml: 'yaml',
+  yml: 'yaml',
+  markdown: 'markdown',
+  md: 'markdown',
 };
 
 function detectLanguage(code: string, languageName?: string): string {
+  // First, try to match by language name if provided
   if (languageName) {
     const normalized = languageName.toLowerCase().replace(/\s+/g, '');
-    return languageMap[normalized] || normalized;
+    const mapped = languageMap[normalized];
+    if (mapped) return mapped;
+    // Try partial match for common patterns
+    if (normalized.includes('python')) return 'python';
+    if (normalized.includes('javascript') || normalized.includes('js'))
+      return 'javascript';
+    if (normalized.includes('typescript') || normalized.includes('ts'))
+      return 'typescript';
+    if (normalized.includes('java') && !normalized.includes('script'))
+      return 'java';
+    if (normalized.includes('c++') || normalized.includes('cpp')) return 'cpp';
+    if (normalized.includes('c#') || normalized.includes('csharp'))
+      return 'csharp';
+    // Return normalized if no match found
+    return normalized;
   }
 
-  const snippet = code.trim().slice(0, 200).toLowerCase();
+  // Fallback to code analysis
+  const snippet = code.trim().slice(0, 500).toLowerCase();
 
-  if (snippet.includes('def ') || snippet.includes('import ')) return 'python';
-  if (snippet.includes('console.log') || snippet.includes('function'))
+  // Python patterns
+  if (
+    snippet.includes('def ') ||
+    snippet.includes('import ') ||
+    snippet.includes('from ') ||
+    snippet.includes('print(') ||
+    snippet.includes('if __name__')
+  )
+    return 'python';
+
+  // JavaScript/TypeScript patterns
+  if (
+    snippet.includes('console.log') ||
+    snippet.includes('function ') ||
+    snippet.includes('const ') ||
+    snippet.includes('let ') ||
+    snippet.includes('var ') ||
+    snippet.includes('=>') ||
+    snippet.includes('export ') ||
+    snippet.includes('require(')
+  )
     return 'javascript';
-  if (snippet.includes('package ') || snippet.includes('fmt.')) return 'go';
-  if (snippet.includes('#include') || snippet.includes('std::')) return 'cpp';
-  if (snippet.includes('public class')) return 'java';
-  if (snippet.includes('fn main') || snippet.includes('println!'))
+
+  // TypeScript specific
+  if (snippet.includes('interface ') || snippet.includes('type '))
+    return 'typescript';
+
+  // Java patterns
+  if (
+    snippet.includes('public class') ||
+    snippet.includes('public static void main') ||
+    snippet.includes('@override') ||
+    snippet.includes('package ')
+  )
+    return 'java';
+
+  // C/C++ patterns
+  if (
+    snippet.includes('#include') ||
+    snippet.includes('std::') ||
+    snippet.includes('using namespace') ||
+    snippet.includes('int main(')
+  )
+    return 'cpp';
+
+  // C# patterns
+  if (
+    snippet.includes('using system') ||
+    snippet.includes('namespace ') ||
+    (snippet.includes('public class') && snippet.includes('{'))
+  )
+    return 'csharp';
+
+  // Go patterns
+  if (
+    snippet.includes('package ') ||
+    snippet.includes('fmt.') ||
+    snippet.includes('func main()') ||
+    snippet.includes('import "')
+  )
+    return 'go';
+
+  // Rust patterns
+  if (
+    snippet.includes('fn main()') ||
+    snippet.includes('println!') ||
+    snippet.includes('use ') ||
+    snippet.includes('let mut ')
+  )
     return 'rust';
 
+  // PHP patterns
+  if (snippet.includes('<?php') || snippet.includes('<?=')) return 'php';
+
+  // Ruby patterns
+  if (
+    (snippet.includes('def ') && !snippet.includes('def __')) ||
+    snippet.includes('end') ||
+    snippet.includes('require ')
+  )
+    return 'ruby';
+
+  // HTML patterns
+  if (snippet.includes('<!doctype') || snippet.includes('<html'))
+    return 'markup';
+
+  // SQL patterns
+  if (
+    snippet.includes('select ') ||
+    snippet.includes('from ') ||
+    snippet.includes('where ') ||
+    snippet.includes('insert into')
+  )
+    return 'sql';
+
+  // Default fallback
   return 'text';
 }
 

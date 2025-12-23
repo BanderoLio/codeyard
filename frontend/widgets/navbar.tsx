@@ -10,6 +10,13 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link, usePathname, useRouter } from '@/navigation';
 import { LOCALES } from '@/i18n';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function Navbar({ titleFont }: { titleFont: string }) {
   const user = useAppStoreApi().use.user();
@@ -21,6 +28,7 @@ export function Navbar({ titleFont }: { titleFont: string }) {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('Navbar');
+  const tLocale = useTranslations('LocaleSwitcher');
 
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,
@@ -72,20 +80,21 @@ export function Navbar({ titleFont }: { titleFont: string }) {
         </h1>
       </Link>
       <div className="flex min-w-0 shrink-0 items-center justify-end gap-1 sm:gap-2">
-        <div className="flex items-center gap-1 rounded-full border px-1 py-0.5 text-xs">
-          {LOCALES.map((itemLocale: string) => (
-            <Button
-              key={itemLocale}
-              size="sm"
-              variant={locale === itemLocale ? 'secondary' : 'ghost'}
-              className="h-7 px-2"
-              onClick={() => handleLocaleChange(itemLocale)}
-              aria-pressed={locale === itemLocale}
-            >
-              {itemLocale.toUpperCase()}
-            </Button>
-          ))}
-        </div>
+        <Select value={locale} onValueChange={handleLocaleChange}>
+          <SelectTrigger
+            className="h-8 w-[100px] text-xs sm:w-[120px] sm:text-sm"
+            aria-label={tLocale('label')}
+          >
+            <SelectValue placeholder={tLocale('label')} />
+          </SelectTrigger>
+          <SelectContent>
+            {LOCALES.map((itemLocale: string) => (
+              <SelectItem key={itemLocale} value={itemLocale}>
+                {tLocale(itemLocale)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <ThemeToggle />
         {authorization && user ? (
           <>
