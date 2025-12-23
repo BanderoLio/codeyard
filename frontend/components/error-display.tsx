@@ -3,6 +3,7 @@
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useTranslations } from 'next-intl';
 
 type ErrorDisplayProps = {
   title?: string;
@@ -13,16 +14,19 @@ type ErrorDisplayProps = {
 };
 
 export function ErrorDisplay({
-  title = 'Something went wrong',
+  title,
   message,
   onRetry,
-  retryLabel = 'Try again',
+  retryLabel,
   className,
 }: ErrorDisplayProps) {
+  const t = useTranslations('Common');
+  const displayTitle = title ?? t('somethingWentWrong');
+  const displayRetryLabel = retryLabel ?? t('tryAgain');
   return (
     <Alert variant="destructive" className={className}>
       <AlertCircle className="h-4 w-4" aria-hidden="true" />
-      <AlertTitle>{title}</AlertTitle>
+      <AlertTitle>{displayTitle}</AlertTitle>
       <AlertDescription>
         <p>{message}</p>
         {onRetry && (
@@ -31,14 +35,13 @@ export function ErrorDisplay({
             size="sm"
             onClick={onRetry}
             className="mt-4"
-            aria-label={retryLabel}
+            aria-label={displayRetryLabel}
           >
             <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
-            {retryLabel}
+            {displayRetryLabel}
           </Button>
         )}
       </AlertDescription>
     </Alert>
   );
 }
-

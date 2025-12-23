@@ -4,14 +4,14 @@ import type { TLogin } from './types/login.type';
 import type { TRegister } from './types/register.type';
 import type { TUser } from './types/user.type';
 
-type LoginResponse = {
+type TLoginResponse = {
   access: string;
 };
 
 export const authApi = {
   login: async (data: TLogin): Promise<TAuthorization> => {
     const response = await apiClient.post<
-      LoginResponse,
+      TLoginResponse,
       '/api/auth/login/',
       TLogin
     >('/api/auth/login/', data);
@@ -22,7 +22,7 @@ export const authApi = {
 
   register: async (data: TRegister): Promise<TAuthorization> => {
     const response = await apiClient.post<
-      LoginResponse,
+      TLoginResponse,
       '/api/auth/register/',
       TRegister
     >('/api/auth/register/', data);
@@ -36,7 +36,7 @@ export const authApi = {
   },
 
   refresh: async (): Promise<TAuthorization> => {
-    const response = await apiClient.post<LoginResponse, '/api/auth/refresh/'>(
+    const response = await apiClient.post<TLoginResponse, '/api/auth/refresh/'>(
       '/api/auth/refresh/',
     );
     return {

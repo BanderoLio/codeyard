@@ -11,12 +11,12 @@ import { LoginForm } from '@/features/auth';
 import { Link } from '@/navigation';
 import { useTranslations } from 'next-intl';
 
-type AuthModalProps = {
+type TAuthModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+export function AuthModal({ open, onOpenChange }: TAuthModalProps) {
   const t = useTranslations('Auth');
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

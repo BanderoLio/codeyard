@@ -1,4 +1,4 @@
-import { Navbar } from '@/widgets/navbar';
+import { Navbar } from '@/widgets/navbar/navbar';
 import type { ReactNode } from 'react';
 import { pixelifySans } from '@/app/(fonts)/fonts';
 import { Footer } from '../footer';
