@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { useState } from 'react';
 import { catalogApi } from '@/features/catalog/catalog.api';
 import {
@@ -26,9 +26,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FormItem as CustomFormItem } from '@/components/form-item';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { useAuth } from '@/features/auth/use-auth';
 import { getErrorMessage } from '@/lib/utils/error-handler';
+import { toast } from 'sonner';
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 const taskSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
@@ -72,6 +81,7 @@ export function CreateTaskPage() {
     mutationFn: catalogApi.createTask,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      toast.success('Task created successfully');
       const taskId = data?.id;
       if (taskId !== undefined && taskId !== null) {
         const id = Number(taskId);
@@ -80,10 +90,15 @@ export function CreateTaskPage() {
           return;
         }
       }
-      setError('Failed to create task. Invalid response from server.');
+      const errorMessage =
+        'Failed to create task. Invalid response from server.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     },
     onError: (error: Error) => {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
+      toast.error(errorMessage);
     },
   });
 
@@ -99,15 +114,29 @@ export function CreateTaskPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6">
-        <Button variant="outline" asChild>
-          <Link href="/catalog">← Back to Catalog</Link>
-        </Button>
-      </div>
+    <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/catalog">Catalog</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Create Task</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <div className="bg-card rounded-lg border p-6 shadow-sm">
-        <h1 className="mb-6 text-2xl font-bold">Create New Task</h1>
+      <div className="bg-card rounded-lg border p-4 shadow-sm sm:p-6">
+        <h1 className="mb-6 text-xl font-bold sm:text-2xl">Create New Task</h1>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -214,15 +243,21 @@ export function CreateTaskPage() {
               )}
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
+                className="w-full sm:w-auto"
+                disabled={createMutation.isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
+              <Button
+                type="submit"
+                disabled={createMutation.isPending}
+                className="w-full sm:w-auto"
+              >
                 {createMutation.isPending ? 'Creating...' : 'Create Task'}
               </Button>
             </div>

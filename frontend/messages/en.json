@@ -1,0 +1,51 @@
+{
+  "Navbar": {
+    "homeAria": "Codeyard home",
+    "login": "Login",
+    "loginShort": "Log",
+    "signup": "Sign up",
+    "signupShort": "Up",
+    "logout": "Logout",
+    "loggedInAs": "Logged in as {username}",
+    "language": "Language"
+  },
+  "Footer": {
+    "rights": "@ {year} Codeyard. All rights reserved."
+  },
+  "CodeBlock": {
+    "copy": "Copy",
+    "copiedLabel": "Copied",
+    "copySuccess": "Code copied to clipboard",
+    "copyError": "Failed to copy code"
+  },
+  "Home": {
+    "badge": "Open beta",
+    "eyebrow": "Ship reliable solutions faster",
+    "titleLead": "A modern home for your",
+    "titleAccent": "Codeyard",
+    "titleTail": "problem-solving flow",
+    "subtitle": "Collect, review, and share solutions with teammates. Syntax highlighting, rich explanations, and actionable tasks in one place.",
+    "primaryCta": "Browse catalog",
+    "secondaryCta": "Get started",
+    "tertiaryCta": "View live demo",
+    "metricsTitle": "Built for focused engineers",
+    "statSolutions": "Reviewed solutions",
+    "statQuality": "Average quality score",
+    "statLanguages": "Languages supported",
+    "codeTitle": "Syntax-highlighted preview",
+    "codeSubtitle": "Dark and light themes stay consistent across every snippet.",
+    "featureTitle": "Everything to keep solutions tidy",
+    "featureSubtitle": "Stay organized with fast navigation, structured metadata, and code that looks as good as it runs.",
+    "featureCurationTitle": "Curated tasks & filters",
+    "featureCurationDesc": "Search by difficulty, category, or language with instant feedback.",
+    "featureHighlightingTitle": "Readable code by default",
+    "featureHighlightingDesc": "Automatic language detection with numbered lines and quick copy.",
+    "featureCollaborationTitle": "Built for sharing",
+    "featureCollaborationDesc": "Collect likes/dislikes, publish securely, and iterate with confidence."
+  },
+  "LocaleSwitcher": {
+    "label": "Language",
+    "en": "English",
+    "ru": "Русский"
+  }
+}

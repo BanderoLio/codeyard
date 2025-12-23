@@ -1,5 +1,6 @@
-import { CatalogPage } from '@/pages/catalog.page';
+import { redirect } from 'next/navigation';
+import { defaultLocale } from '@/i18n';
 
 export default function Catalog() {
-  return <CatalogPage />;
+  redirect(`/${defaultLocale}/catalog`);
 }

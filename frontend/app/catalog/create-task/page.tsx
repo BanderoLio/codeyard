@@ -1,6 +1,6 @@
-import { CreateTaskPage } from '@/pages/catalog/create-task.page';
+import { redirect } from 'next/navigation';
+import { defaultLocale } from '@/i18n';
 
 export default function CreateTask() {
-  return <CreateTaskPage />;
+  redirect(`/${defaultLocale}/catalog/create-task`);
 }
-

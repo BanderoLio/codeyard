@@ -1,5 +1,6 @@
-import { LoginPage } from '@/pages/auth/login.page';
+import { redirect } from 'next/navigation';
+import { defaultLocale } from '@/i18n';
 
 export default function Login() {
-  return <LoginPage />;
+  redirect(`/${defaultLocale}/auth/login`);
 }
