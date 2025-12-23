@@ -5,8 +5,8 @@ import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import { Form, FormField } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { authApi } from '../auth.api';
@@ -16,6 +16,7 @@ import { UserPlusIcon } from 'lucide-react';
 import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
 import { getErrorMessage } from '@/lib/utils/error-handler';
+import { toast } from 'sonner';
 
 export function RegisterForm() {
   const form = useForm<TRegister>({
@@ -27,6 +28,7 @@ export function RegisterForm() {
     },
   });
   const router = useRouter();
+  const queryClient = useQueryClient();
   const storeApi = useAppStoreApi();
   const setAuthorization = storeApi.use.setAuthorization();
   const setUser = storeApi.use.setUser();
@@ -42,10 +44,14 @@ export function RegisterForm() {
       } catch (err) {
         console.error('Failed to fetch user data:', err);
       }
-      router.push('/catalog');
+      queryClient.clear();
+      toast.success('Account created successfully');
+      router.replace('/catalog');
     },
     onError: (err: Error) => {
-      setError(getErrorMessage(err));
+      const errorMessage = getErrorMessage(err);
+      setError(errorMessage);
+      toast.error(errorMessage);
     },
   });
 

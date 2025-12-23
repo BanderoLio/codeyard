@@ -41,7 +41,7 @@ frontend/
 ├── lib/                  # Утилиты и конфигурация
 │   ├── api-client.ts    # HTTP клиент с JWT
 │   └── utils.ts
-├── pages/                # Page компоненты (FSD)
+├── views/                # Page компоненты (FSD, переименовано из pages для избежания конфликта с Next.js)
 ├── shared/               # Общие провайдеры и утилиты
 │   └── providers/       # React провайдеры
 └── widgets/              # Композитные компоненты (FSD)
@@ -167,11 +167,13 @@ frontend/
 #### UI Components
 
 Все компоненты из shadcn-ui:
+
 - Button, Input, Textarea, Select
 - Dialog, Form, Label
 - Spinner, Tooltip
 
 Кастомные компоненты:
+
 - FormItem (обертка для полей формы)
 - IconButton
 - CodeyardIcon
@@ -203,6 +205,7 @@ pnpm start
 ### Зависимости
 
 Основные зависимости (см. `package.json`):
+
 - `next`: 16.0.3
 - `react`: 19.2.0
 - `typescript`: ^5
@@ -242,6 +245,7 @@ pnpm start
 #### Формат ответов
 
 Все списки возвращаются в формате пагинации:
+
 ```typescript
 {
   count: number;

@@ -1,0 +1,51 @@
+{
+  "Navbar": {
+    "homeAria": "Главная Codeyard",
+    "login": "Войти",
+    "loginShort": "Вход",
+    "signup": "Регистрация",
+    "signupShort": "Рег",
+    "logout": "Выйти",
+    "loggedInAs": "Вы вошли как {username}",
+    "language": "Язык"
+  },
+  "Footer": {
+    "rights": "@ {year} Codeyard. Все права защищены."
+  },
+  "CodeBlock": {
+    "copy": "Скопировать",
+    "copiedLabel": "Скопировано",
+    "copySuccess": "Код скопирован",
+    "copyError": "Не удалось скопировать код"
+  },
+  "Home": {
+    "badge": "Открытая бета",
+    "eyebrow": "Доставляйте решения быстрее",
+    "titleLead": "Современный дом для вашего",
+    "titleAccent": "Codeyard",
+    "titleTail": "процесса решения задач",
+    "subtitle": "Собирайте, проверяйте и делитесь решениями с командой. Подсветка синтаксиса, подробные объяснения и задачи в одном месте.",
+    "primaryCta": "Каталог задач",
+    "secondaryCta": "Начать работу",
+    "tertiaryCta": "Посмотреть демо",
+    "metricsTitle": "Для сосредоточенных инженеров",
+    "statSolutions": "Проверенных решений",
+    "statQuality": "Средний рейтинг качества",
+    "statLanguages": "Поддерживаемых языков",
+    "codeTitle": "Превью с подсветкой",
+    "codeSubtitle": "Тёмная и светлая темы сохраняют единый стиль для каждого сниппета.",
+    "featureTitle": "Всё, чтобы хранить решения в порядке",
+    "featureSubtitle": "Организуйте знания с быстрым поиском, метаданными и кодом, который приятно читать.",
+    "featureCurationTitle": "Кураторство и фильтры",
+    "featureCurationDesc": "Ищите по сложности, категории или языку с мгновенной отдачей.",
+    "featureHighlightingTitle": "Читаемый код по умолчанию",
+    "featureHighlightingDesc": "Автоопределение языка, нумерация строк и быстрый копипаст.",
+    "featureCollaborationTitle": "Для совместной работы",
+    "featureCollaborationDesc": "Собирайте лайки/дизлайки, публикуйте безопасно и улучшайте решения."
+  },
+  "LocaleSwitcher": {
+    "label": "Язык",
+    "en": "English",
+    "ru": "Русский"
+  }
+}

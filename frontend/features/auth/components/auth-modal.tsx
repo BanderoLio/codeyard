@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { LoginForm } from '@/features/auth';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 
 type AuthModalProps = {
   open: boolean;

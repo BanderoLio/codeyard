@@ -6,5 +6,16 @@ import {
 } from 'next-themes';
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  return <NextThemeProvider {...props}>{children}</NextThemeProvider>;
+  return (
+    <NextThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      storageKey="codeyard-theme"
+      disableTransitionOnChange={false}
+      {...props}
+    >
+      {children}
+    </NextThemeProvider>
+  );
 }

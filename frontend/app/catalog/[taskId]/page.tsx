@@ -1,4 +1,5 @@
-import { TaskDetailPage } from '@/pages/task-detail.page';
+import { redirect } from 'next/navigation';
+import { defaultLocale } from '@/i18n';
 
 type PageProps = {
   params: Promise<{ taskId: string }>;
@@ -6,5 +7,5 @@ type PageProps = {
 
 export default async function TaskDetail({ params }: PageProps) {
   const { taskId } = await params;
-  return <TaskDetailPage taskId={Number(taskId)} />;
+  redirect(`/${defaultLocale}/catalog/${taskId}`);
 }
