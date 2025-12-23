@@ -1,9 +1,13 @@
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django_ratelimit.decorators import ratelimit
 from rest_framework import mixins, pagination, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from catalog import filters, models, serializers, services
+from common.cache_utils import CACHE_TIMEOUT_REFERENCES
 from common.mixins import StaffWritePermissionMixin
 from common.permissions import IsOwnerOrReadOnly
 
@@ -12,24 +16,36 @@ class NoPagination(pagination.PageNumberPagination):
     page_size = None
 
 
+@method_decorator(
+    cache_page(CACHE_TIMEOUT_REFERENCES), name="list"
+)
 class CategoryViewSet(StaffWritePermissionMixin):
     queryset = models.Category.objects.all().order_by("name")
     serializer_class = serializers.CategorySerializer
     pagination_class = NoPagination
 
 
+@method_decorator(
+    cache_page(CACHE_TIMEOUT_REFERENCES), name="list"
+)
 class DifficultyViewSet(StaffWritePermissionMixin):
     queryset = models.Difficulty.objects.all().order_by("name")
     serializer_class = serializers.DifficultySerializer
     pagination_class = NoPagination
 
 
+@method_decorator(
+    cache_page(CACHE_TIMEOUT_REFERENCES), name="list"
+)
 class ProgrammingLanguageViewSet(StaffWritePermissionMixin):
     queryset = models.ProgrammingLanguage.objects.all().order_by("name")
     serializer_class = serializers.ProgrammingLanguageSerializer
     pagination_class = NoPagination
 
 
+@method_decorator(
+    ratelimit(key="ip", rate="100/m", block=True), name="dispatch"
+)
 class ProgrammingTaskViewSet(viewsets.ModelViewSet):
     queryset = models.ProgrammingTask.objects.select_related(
         "category", "difficulty", "added_by"
@@ -62,6 +78,9 @@ class ProgrammingTaskViewSet(viewsets.ModelViewSet):
         serializer.save(added_by=self.request.user)
 
 
+@method_decorator(
+    ratelimit(key="ip", rate="100/m", block=True), name="dispatch"
+)
 class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SolutionSerializer
     permission_classes = (
@@ -97,6 +116,9 @@ class SolutionViewSet(viewsets.ModelViewSet):
         )
 
 
+@method_decorator(
+    ratelimit(key="ip", rate="100/m", block=True), name="dispatch"
+)
 class ReviewViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
@@ -104,7 +126,12 @@ class ReviewViewSet(
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return models.Review.objects.select_related("solution", "added_by")
+        return models.Review.objects.select_related(
+            "solution",
+            "solution__task",
+            "solution__language",
+            "added_by",
+        ).all()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

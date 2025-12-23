@@ -33,7 +33,7 @@ class ProgrammingTask(TimeStampedMixin):
         HIDDEN = "HIDDEN", "Hidden"
 
     name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     resource = models.URLField(blank=True)
     difficulty = models.ForeignKey(
         Difficulty, on_delete=models.PROTECT, related_name="tasks"
@@ -65,6 +65,10 @@ class ProgrammingTask(TimeStampedMixin):
             models.Index(fields=["category"]),
             models.Index(fields=["difficulty"]),
             models.Index(fields=["status"]),
+            models.Index(fields=["added_by"]),
+            models.Index(fields=["status", "category"]),
+            models.Index(fields=["status", "difficulty"]),
+            models.Index(fields=["created_at"]),
         ]
 
     def __str__(self):
@@ -95,6 +99,10 @@ class Solution(TimeStampedMixin):
         indexes = [
             models.Index(fields=["is_public", "task"]),
             models.Index(fields=["user"]),
+            models.Index(fields=["is_public"]),
+            models.Index(fields=["task"]),
+            models.Index(fields=["language"]),
+            models.Index(fields=["created_at"]),
         ]
 
     def __str__(self):
@@ -121,6 +129,11 @@ class Review(TimeStampedMixin):
             models.UniqueConstraint(
                 fields=["solution", "added_by"], name="unique_review_per_user"
             )
+        ]
+        indexes = [
+            models.Index(fields=["solution"]),
+            models.Index(fields=["added_by"]),
+            models.Index(fields=["created_at"]),
         ]
 
     def __str__(self):

@@ -20,6 +20,11 @@ def _sync_task_status(
 @transaction.atomic
 def create_solution(*, user, validated_data: Dict[str, Any]) -> ServiceResult:
     task = validated_data["task"]
+
+    # Validate that task exists
+    if not task:
+        raise ValueError("Задача не найдена.")
+
     is_public = validated_data.get("is_public", False)
     solution = models.Solution.objects.create(user=user, **validated_data)
     _sync_task_status(task, is_public=is_public)
@@ -47,9 +52,10 @@ def publish_solution(
 
 def create_review(
     *, user, solution: models.Solution, review_type: int
-) -> models.Review:
+) -> ServiceResult:
     if solution.user_id == user.id:
-        raise ValueError("Нельзя оценивать собственное решение")
+        raise ValueError("Нельзя оценивать собственное решение.")
+
     review, created = models.Review.objects.update_or_create(
         solution=solution,
         added_by=user,

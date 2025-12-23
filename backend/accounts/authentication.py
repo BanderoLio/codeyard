@@ -1,7 +1,10 @@
+from typing import Optional
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import (
@@ -14,7 +17,15 @@ from accounts.serializers import RegisterSerializer, UserSerializer
 
 
 class CookieMixin:
-    def set_refresh_cookie(self, response, refresh_token: str) -> None:
+    """Mixin for handling refresh token in cookies."""
+
+    def set_refresh_cookie(self, response: Response, refresh_token: str) -> None:
+        """Set refresh token in secure HTTP-only cookie.
+        
+        Args:
+            response: Response object to set cookie on
+            refresh_token: Token value to store
+        """
         response.set_cookie(
             settings.REFRESH_COOKIE_NAME,
             refresh_token,
@@ -26,7 +37,7 @@ class CookieMixin:
             ),
         )
 
-    def clear_refresh_cookie(self, response) -> None:
+    def clear_refresh_cookie(self, response: Response) -> None:
         response.delete_cookie(settings.REFRESH_COOKIE_NAME)
 
 

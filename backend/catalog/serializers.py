@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from catalog import models, services
+from catalog import models, services, validators
 
 User = get_user_model()
 
@@ -54,6 +54,33 @@ class ProgrammingTaskSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
+    def validate_name(self, value: str) -> str:
+        validators.validate_task_name_length(value)
+        return validators.sanitize_html(value.strip())
+
+    def validate_description(self, value: str) -> str:
+        validators.validate_description_length(value)
+        return validators.sanitize_html(value.strip())
+
+    def validate_resource(self, value: str) -> str:
+        if value:
+            validators.validate_url_format(value)
+        return validators.sanitize_html(value.strip())
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        name = attrs.get("name")
+
+        if name and self.instance is None:  # Only on creation
+            if models.ProgrammingTask.objects.filter(
+                name=name, added_by=user
+            ).exists():
+                raise serializers.ValidationError(
+                    {"name": "Задача с таким названием уже существует."}
+                )
+
+        return attrs
+
 
 class SolutionSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(read_only=True)
@@ -85,6 +112,30 @@ class SolutionSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+    def validate_code(self, value: str) -> str:
+        """Validate code field."""
+        if not isinstance(value, str) or not value.strip():
+            raise serializers.ValidationError(
+                "Код не может быть пустым."
+            )
+        if len(value.strip()) < 1:
+            raise serializers.ValidationError(
+                "Код должен содержать минимум 1 символ."
+            )
+        if len(value) > 1_000_000:
+            raise serializers.ValidationError(
+                "Код слишком длинный (максимум 1000000 символов)."
+            )
+        return validators.sanitize_html(value.strip())
+
+    def validate_explanation(self, value: str) -> str:
+        if value:
+            if len(value.strip()) > 100000:
+                raise serializers.ValidationError(
+                    "Объяснение слишком длинное (максимум 100000 символов)."
+                )
+        return validators.sanitize_html(value.strip())
 
     def create(self, validated_data):
         result = services.create_solution(
