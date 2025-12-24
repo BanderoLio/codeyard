@@ -67,7 +67,25 @@ export class ApiClient {
           _retry?: boolean;
         };
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        const url = originalRequest?.url || '';
+        const isAuthEndpoint =
+          url.includes('/api/auth/login/') ||
+          url.includes('/api/auth/register/') ||
+          url.includes('/api/auth/refresh/');
+
+        if (
+          error.response?.status === 401 &&
+          !originalRequest._retry &&
+          !isAuthEndpoint
+        ) {
+          // Only attempt refresh if we have an access token
+          // If no access token, there's no refresh token in cookie either
+          const hasAccessToken = this.getAccessToken?.();
+          if (!hasAccessToken) {
+            this.onUnauthorized?.();
+            return Promise.reject(error);
+          }
+
           if (this.isRefreshing) {
             return new Promise((resolve, reject) => {
               this.failedQueue.push({ resolve, reject });

@@ -14,7 +14,7 @@ import { createRegisterSchema, TRegister } from '../types/register.type';
 import { UserPlusIcon } from 'lucide-react';
 import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -25,12 +25,14 @@ type TRegisterFormProps = {
 export function RegisterForm({ onSuccess }: TRegisterFormProps = {}) {
   const t = useTranslations('Auth');
   const tValidation = useTranslations('Validation');
+  const tErrors = useTranslations('Errors');
   const form = useForm<TRegister>({
     resolver: zodResolver(createRegisterSchema(tValidation)),
     defaultValues: {
       username: '',
       email: '',
       password: '',
+      password_confirm: '',
     },
   });
   const router = useRouter();
@@ -59,7 +61,7 @@ export function RegisterForm({ onSuccess }: TRegisterFormProps = {}) {
       }
     },
     onError: (err: Error) => {
-      const errorMessage = getErrorMessage(err);
+      const errorMessage = getTranslatedErrorMessage(err, tErrors);
       setError(errorMessage);
       toast.error(errorMessage);
     },
@@ -110,6 +112,19 @@ export function RegisterForm({ onSuccess }: TRegisterFormProps = {}) {
             </FormItem>
           )}
           name="password"
+        />
+        <FormField
+          control={form.control}
+          render={({ field }) => (
+            <FormItem label={t('passwordConfirmLabel')}>
+              <Input
+                type="password"
+                placeholder={t('passwordConfirmPlaceholder')}
+                {...field}
+              />
+            </FormItem>
+          )}
+          name="password_confirm"
         />
         {error && (
           <div className="text-destructive text-center text-sm">{error}</div>

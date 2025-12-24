@@ -1,12 +1,10 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { Link } from '@/navigation';
 import { ThumbsUp, ThumbsDown, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CodeBlock } from '@/components/code-block';
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
-import { catalogApi } from '../catalog.api';
 import { useTranslations } from 'next-intl';
 import type { TSolution } from '../types';
 import { useSolutionMutations } from '../hooks/use-solution-mutations';
@@ -22,11 +20,6 @@ export function SolutionCard({ solution, taskId }: TSolutionCardProps) {
   const user = useAppStoreApi().use.user();
   const [publishError, setPublishError] = useState<string | null>(null);
 
-  const { data: reviews } = useQuery({
-    queryKey: ['reviews', solution.id],
-    queryFn: () => catalogApi.getReviews(solution.id),
-  });
-
   const { createReviewMutation, publishMutation, deleteMutation } =
     useSolutionMutations({
       solutionId: solution.id,
@@ -35,11 +28,9 @@ export function SolutionCard({ solution, taskId }: TSolutionCardProps) {
       onPublishSuccess: () => setPublishError(null),
     });
 
-  const positiveReviews =
-    reviews?.filter((r) => r.review_type === 1).length || 0;
-  const negativeReviews =
-    reviews?.filter((r) => r.review_type === 0).length || 0;
-  const userReview = reviews?.find((r) => r.added_by === user?.username);
+  const positiveReviews = solution.positive_reviews_count || 0;
+  const negativeReviews = solution.negative_reviews_count || 0;
+  const userReview = solution.user_review;
 
   const canReview = user && user.username !== solution.user && !userReview;
   const isOwner = user?.username === solution.user;

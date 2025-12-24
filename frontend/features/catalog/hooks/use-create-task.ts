@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from '@/navigation';
 import { catalogApi } from '../catalog.api';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -15,6 +15,7 @@ type TCreateTaskData = {
 
 export function useCreateTask() {
   const t = useTranslations('CreateTask');
+  const tErrors = useTranslations('Errors');
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -35,7 +36,7 @@ export function useCreateTask() {
       toast.error(errorMessage);
     },
     onError: (error: Error) => {
-      toast.error(getErrorMessage(error));
+      toast.error(getTranslatedErrorMessage(error, tErrors));
     },
   });
 }

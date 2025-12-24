@@ -1,10 +1,11 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TaskHeader } from './task-header';
 import { SolutionsListContainer } from './solutions-list-container';
 import { Breadcrumbs } from '@/widgets/breadcrumbs';
+import { Link } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import type { TProgrammingTask, TCategory, TDifficulty } from '../types';
 import type { ReactNode } from 'react';
@@ -25,14 +26,13 @@ export function TaskDetailPresentation({
   taskId,
   categories,
   difficulties,
-  user,
   onShowSolutionForm,
   solutionFormSlot,
 }: TTaskDetailPresentationProps) {
   const t = useTranslations('TaskDetail');
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-4 sm:py-8">
+    <div className="container mx-auto max-w-7xl px-4 py-4 sm:py-8">
       <Breadcrumbs
         items={[
           { label: t('home'), href: '/' },
@@ -64,6 +64,15 @@ export function TaskDetailPresentation({
         taskId={taskId}
         onAddSolution={() => onShowSolutionForm(true)}
       />
+
+      <div className="mt-8">
+        <Button asChild variant="outline">
+          <Link href="/catalog">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('backToCatalog')}
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

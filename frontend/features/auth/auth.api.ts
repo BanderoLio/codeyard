@@ -45,8 +45,8 @@ export const authApi = {
   },
 
   getMe: async (): Promise<TUser> => {
-    const response = await apiClient.get<TUser, '/api/users/me/'>(
-      '/api/users/me/',
+    const response = await apiClient.get<TUser, '/api/auth/me/'>(
+      '/api/auth/me/',
     );
     return response.data;
   },

@@ -8,10 +8,10 @@ export function useTaskDetail(taskId: number) {
   });
 }
 
-export function useTaskSolutions(taskId: number) {
+export function useTaskSolutions(taskId: number, page: number = 1) {
   return useQuery({
-    queryKey: ['solutions', taskId],
-    queryFn: () => catalogApi.getSolutions({ task: taskId }),
+    queryKey: ['solutions', taskId, page],
+    queryFn: () => catalogApi.getSolutions({ task: taskId, page }),
   });
 }
 

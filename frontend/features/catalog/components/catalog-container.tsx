@@ -8,11 +8,13 @@ import { CatalogPresentation } from './catalog-presentation';
 import { AuthModal } from '@/features/auth/components/auth-modal';
 import { useRequireAuth } from '@/features/auth/hooks/use-require-auth';
 import { useRouter } from '@/navigation';
+import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 
 export function CatalogContainer() {
   const filters = useCatalogFilters();
   const router = useRouter();
   const { requireAuth, showAuthModal, setShowAuthModal } = useRequireAuth();
+  const user = useAppStoreApi().use.user();
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: () => catalogApi.getCategories(),
@@ -33,6 +35,9 @@ export function CatalogContainer() {
     difficultyFilter: filters.difficultyFilter,
     sortBy: filters.sortBy,
     page: filters.page,
+    myTasksOnly: filters.myTasksOnly,
+    solvedByMe: filters.solvedByMe,
+    userId: user?.id,
   });
 
   const tasks = tasksData?.results || [];

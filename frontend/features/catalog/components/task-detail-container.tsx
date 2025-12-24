@@ -5,7 +5,7 @@ import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import { useTaskDetail, useTaskMetadata } from '../hooks/use-task-detail';
 import { TaskDetailPresentation } from './task-detail-presentation';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { ErrorDisplay } from '@/components/error-display';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/navigation';
@@ -25,6 +25,7 @@ type TTaskDetailContainerProps = {
 
 export function TaskDetailContainer({ taskId }: TTaskDetailContainerProps) {
   const t = useTranslations('TaskDetail');
+  const tErrors = useTranslations('Errors');
   const user = useAppStoreApi().use.user();
   const [showSolutionForm, setShowSolutionForm] = useState(false);
   const { requireAuth, showAuthModal, setShowAuthModal } = useRequireAuth();
@@ -67,7 +68,7 @@ export function TaskDetailContainer({ taskId }: TTaskDetailContainerProps) {
       <div className="container mx-auto max-w-4xl px-4 py-4 sm:py-8">
         <ErrorDisplay
           title={t('failedToLoadTitle')}
-          message={getErrorMessage(taskError)}
+          message={getTranslatedErrorMessage(taskError, tErrors)}
           onRetry={() => refetchTask()}
         />
         <div className="mt-4">

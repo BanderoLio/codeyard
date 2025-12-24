@@ -80,7 +80,9 @@
     "home": "Home",
     "catalog": "Catalog",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "myTasksOnly": "My tasks only",
+    "solvedByMe": "Tasks I solved"
   },
   "TaskDetail": {
     "loading": "Loading task details...",
@@ -182,6 +184,8 @@
     "usernamePlaceholder": "Enter your username",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter your password",
+    "passwordConfirmLabel": "Confirm Password",
+    "passwordConfirmPlaceholder": "Confirm your password",
     "emailLabel": "Email",
     "emailPlaceholder": "Enter your email",
     "login": "Log In",
@@ -232,6 +236,8 @@
     "passwordRequired": "Password is required",
     "passwordMin": "Password must be at least 5 characters",
     "passwordMax": "Password must be at most 255 characters",
+    "passwordConfirmRequired": "Password confirmation is required",
+    "passwordsDoNotMatch": "Passwords do not match",
     "emailRequired": "Email is required",
     "emailInvalid": "Invalid email address",
     "numberRequired": "This field is required",
@@ -248,5 +254,20 @@
     "light": "Light",
     "dark": "Dark",
     "language": "Language"
+  },
+  "Errors": {
+    "AuthenticationFailed": "Invalid username or password",
+    "NotAuthenticated": "Authentication required. Please log in.",
+    "PermissionDenied": "You do not have permission to perform this action",
+    "NotFound": "Resource not found",
+    "ValidationError": "Validation error",
+    "InvalidCredentials": "Invalid credentials provided",
+    "TokenInvalid": "Invalid or expired token",
+    "TokenExpired": "Token has expired. Please log in again.",
+    "RateLimitExceeded": "Too many requests. Please try again later.",
+    "InternalServerError": "An internal server error occurred",
+    "NetworkError": "Network error. Please check your connection.",
+    "UnexpectedError": "An unexpected error occurred",
+    "default": "An error occurred"
   }
 }

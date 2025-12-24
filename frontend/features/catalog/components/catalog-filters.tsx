@@ -8,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { TCategory, TDifficulty } from '../types';
@@ -22,6 +24,10 @@ type TCatalogFiltersProps = {
   onDifficultyChange: (value: number | undefined) => void;
   sortBy: TSortOption;
   onSortChange: (value: TSortOption) => void;
+  myTasksOnly: boolean;
+  onMyTasksOnlyChange: (value: boolean) => void;
+  solvedByMe: boolean;
+  onSolvedByMeChange: (value: boolean) => void;
   categories?: TCategory[];
   difficulties?: TDifficulty[];
 };
@@ -35,13 +41,18 @@ export function CatalogFilters({
   onDifficultyChange,
   sortBy,
   onSortChange,
+  myTasksOnly,
+  onMyTasksOnlyChange,
+  solvedByMe,
+  onSolvedByMeChange,
   categories,
   difficulties,
 }: TCatalogFiltersProps) {
   const t = useTranslations('Catalog');
 
   return (
-    <div className="mb-6 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+    <div className="mb-6 space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
       <div className="relative">
         <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input
@@ -125,6 +136,39 @@ export function CatalogFilters({
           </SelectItem>
         </SelectContent>
       </Select>
+      </div>
+      <div className="flex flex-wrap gap-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="my-tasks-only"
+            checked={myTasksOnly}
+            onCheckedChange={(checked) =>
+              onMyTasksOnlyChange(checked === true)
+            }
+          />
+          <Label
+            htmlFor="my-tasks-only"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {t('myTasksOnly')}
+          </Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="solved-by-me"
+            checked={solvedByMe}
+            onCheckedChange={(checked) =>
+              onSolvedByMeChange(checked === true)
+            }
+          />
+          <Label
+            htmlFor="solved-by-me"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {t('solvedByMe')}
+          </Label>
+        </div>
+      </div>
     </div>
   );
 }

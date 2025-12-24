@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useTaskSolutions } from '../hooks/use-task-detail';
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import { SolutionsListPresentation } from './solutions-list-presentation';
@@ -17,6 +18,7 @@ export function SolutionsListContainer({
 }: TSolutionsListContainerProps) {
   const user = useAppStoreApi().use.user();
   const { requireAuth, showAuthModal, setShowAuthModal } = useRequireAuth();
+  const [page, setPage] = useState(1);
 
   const handleAddSolution = () => {
     requireAuth(onAddSolution);
@@ -26,13 +28,18 @@ export function SolutionsListContainer({
     isLoading,
     error,
     refetch,
-  } = useTaskSolutions(taskId);
+  } = useTaskSolutions(taskId, page);
 
   const solutions = solutionsData?.results || [];
   const publicSolutions = solutions.filter((s) => s.is_public);
   const userSolutions = user
     ? solutions.filter((s) => s.user === user.username)
     : [];
+  const hasNext = !!solutionsData?.next;
+  const hasPrevious = !!solutionsData?.previous;
+  const totalCount = solutionsData?.count || 0;
+  const pageSize = 20;
+  const totalPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
 
   return (
     <>
@@ -45,6 +52,12 @@ export function SolutionsListContainer({
         onAddSolution={handleAddSolution}
         userSolutions={userSolutions}
         publicSolutions={publicSolutions}
+        page={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        hasNext={hasNext}
+        hasPrevious={hasPrevious}
+        onPageChange={setPage}
       />
       <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </>

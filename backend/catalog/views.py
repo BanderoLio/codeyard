@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count, Prefetch
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_ratelimit.decorators import ratelimit
@@ -16,27 +16,21 @@ class NoPagination(pagination.PageNumberPagination):
     page_size = None
 
 
-@method_decorator(
-    cache_page(CACHE_TIMEOUT_REFERENCES), name="list"
-)
+@method_decorator(cache_page(CACHE_TIMEOUT_REFERENCES), name="list")
 class CategoryViewSet(StaffWritePermissionMixin):
     queryset = models.Category.objects.all().order_by("name")
     serializer_class = serializers.CategorySerializer
     pagination_class = NoPagination
 
 
-@method_decorator(
-    cache_page(CACHE_TIMEOUT_REFERENCES), name="list"
-)
+@method_decorator(cache_page(CACHE_TIMEOUT_REFERENCES), name="list")
 class DifficultyViewSet(StaffWritePermissionMixin):
     queryset = models.Difficulty.objects.all().order_by("name")
     serializer_class = serializers.DifficultySerializer
     pagination_class = NoPagination
 
 
-@method_decorator(
-    cache_page(CACHE_TIMEOUT_REFERENCES), name="list"
-)
+@method_decorator(cache_page(CACHE_TIMEOUT_REFERENCES), name="list")
 class ProgrammingLanguageViewSet(StaffWritePermissionMixin):
     queryset = models.ProgrammingLanguage.objects.all().order_by("name")
     serializer_class = serializers.ProgrammingLanguageSerializer
@@ -51,19 +45,23 @@ class ProgrammingTaskViewSet(viewsets.ModelViewSet):
         "category", "difficulty", "added_by"
     ).all()
     serializer_class = serializers.ProgrammingTaskSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    )
     filterset_class = filters.TaskFilter
     search_fields = ("name",)
     ordering_fields = ("created_at",)
 
     def get_queryset(self):
         qs = super().get_queryset()
-        action = self.action or 'list'
-        
-        # For detail actions (update, delete), return all tasks to allow permission class to check ownership
-        if action in ['retrieve', 'update', 'partial_update', 'destroy']:
+        action = self.action or "list"
+
+        # For detail actions (update, delete), return all tasks
+        # to allow permission class to check ownership
+        if action in ["retrieve", "update", "partial_update", "destroy"]:
             return qs
-        
+
         # For list actions, filter based on visibility
         if not self.request.user.is_authenticated:
             return qs.filter(status=models.ProgrammingTask.TaskStatus.PUBLIC)
@@ -101,6 +99,36 @@ class SolutionViewSet(viewsets.ModelViewSet):
         base_qs = models.Solution.objects.select_related(
             "task", "task__category", "task__difficulty", "language", "user"
         )
+
+        # Annotate review counts
+        base_qs = base_qs.annotate(
+            positive_reviews_count=Count(
+                "reviews",
+                filter=Q(
+                    reviews__review_type=models.Review.ReviewType.POSITIVE
+                ),
+            ),
+            negative_reviews_count=Count(
+                "reviews",
+                filter=Q(
+                    reviews__review_type=models.Review.ReviewType.NEGATIVE
+                ),
+            ),
+        )
+
+        # Prefetch user's review if authenticated
+        if self.request.user.is_authenticated:
+            user_review_qs = models.Review.objects.filter(
+                added_by=self.request.user
+            )
+            base_qs = base_qs.prefetch_related(
+                Prefetch(
+                    "reviews",
+                    queryset=user_review_qs,
+                    to_attr="user_review_list",
+                )
+            )
+
         if not self.request.user.is_authenticated:
             return base_qs.filter(is_public=True)
         return base_qs.filter(
@@ -130,7 +158,13 @@ class ReviewViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
     serializer_class = serializers.ReviewSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    filterset_class = filters.ReviewFilter
+
+    def get_permissions(self):
+        """Allow read access without auth, require auth for create."""
+        if self.action == "create":
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
 
     def get_queryset(self):
         return models.Review.objects.select_related(

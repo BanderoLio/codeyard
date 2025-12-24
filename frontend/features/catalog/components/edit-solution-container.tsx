@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Breadcrumbs } from '@/widgets/breadcrumbs';
 import { ErrorDisplay } from '@/components/error-display';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { useTranslations } from 'next-intl';
 import { EditSolutionPresentation } from './edit-solution-presentation';
 
@@ -25,6 +25,7 @@ export function EditSolutionContainer({
 }: TEditSolutionContainerProps) {
   const t = useTranslations('TaskDetail');
   const tBreadcrumbs = useTranslations('Breadcrumbs');
+  const tErrors = useTranslations('Errors');
   useAuth();
   const router = useRouter();
   const user = useAppStoreApi().use.user();
@@ -67,7 +68,11 @@ export function EditSolutionContainer({
       <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
         <Breadcrumbs items={breadcrumbItems} className="mb-4" />
         <ErrorDisplay
-          message={error ? getErrorMessage(error) : t('solutionNotFound')}
+          message={
+            error
+              ? getTranslatedErrorMessage(error, tErrors)
+              : t('solutionNotFound')
+          }
           onRetry={error ? () => window.location.reload() : undefined}
         />
       </div>

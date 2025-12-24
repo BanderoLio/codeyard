@@ -80,7 +80,9 @@
     "home": "Главная",
     "catalog": "Каталог",
     "previous": "Назад",
-    "next": "Вперёд"
+    "next": "Вперёд",
+    "myTasksOnly": "Только мои задачи",
+    "solvedByMe": "Задачи, которые я решал"
   },
   "TaskDetail": {
     "loading": "Загрузка деталей задачи...",
@@ -182,6 +184,8 @@
     "usernamePlaceholder": "Введите имя пользователя",
     "passwordLabel": "Пароль",
     "passwordPlaceholder": "Введите пароль",
+    "passwordConfirmLabel": "Подтверждение пароля",
+    "passwordConfirmPlaceholder": "Подтвердите пароль",
     "emailLabel": "Email",
     "emailPlaceholder": "Введите email",
     "login": "Войти",
@@ -232,6 +236,8 @@
     "passwordRequired": "Необходимо указать пароль",
     "passwordMin": "Пароль должен содержать не менее 5 символов",
     "passwordMax": "Пароль должен содержать не более 255 символов",
+    "passwordConfirmRequired": "Необходимо подтвердить пароль",
+    "passwordsDoNotMatch": "Пароли не совпадают",
     "emailRequired": "Необходимо указать email",
     "emailInvalid": "Некорректный email-адрес",
     "numberRequired": "Необходимо заполнить это поле",
@@ -248,5 +254,20 @@
     "light": "Светлая",
     "dark": "Тёмная",
     "language": "Язык"
+  },
+  "Errors": {
+    "AuthenticationFailed": "Неверное имя пользователя или пароль",
+    "NotAuthenticated": "Требуется аутентификация. Пожалуйста, войдите.",
+    "PermissionDenied": "У вас нет прав для выполнения этого действия",
+    "NotFound": "Ресурс не найден",
+    "ValidationError": "Ошибка валидации",
+    "InvalidCredentials": "Предоставлены неверные учетные данные",
+    "TokenInvalid": "Неверный или истекший токен",
+    "TokenExpired": "Токен истек. Пожалуйста, войдите снова.",
+    "RateLimitExceeded": "Слишком много запросов. Попробуйте позже.",
+    "InternalServerError": "Произошла внутренняя ошибка сервера",
+    "NetworkError": "Ошибка сети. Проверьте подключение.",
+    "UnexpectedError": "Произошла непредвиденная ошибка",
+    "default": "Произошла ошибка"
   }
 }

@@ -14,7 +14,7 @@ import { createLoginSchema, TLogin } from '../types/login.type';
 import { LogInIcon } from 'lucide-react';
 import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -25,6 +25,7 @@ type TLoginFormProps = {
 export function LoginForm({ onSuccess }: TLoginFormProps = {}) {
   const t = useTranslations('Auth');
   const tValidation = useTranslations('Validation');
+  const tErrors = useTranslations('Errors');
   const form = useForm<TLogin>({
     resolver: zodResolver(createLoginSchema(tValidation)),
     defaultValues: {
@@ -58,7 +59,7 @@ export function LoginForm({ onSuccess }: TLoginFormProps = {}) {
       }
     },
     onError: (err: Error) => {
-      const errorMessage = getErrorMessage(err);
+      const errorMessage = getTranslatedErrorMessage(err, tErrors);
       setError(errorMessage);
       toast.error(errorMessage);
     },

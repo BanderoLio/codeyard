@@ -200,14 +200,18 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
     "PAGE_SIZE": 20,
     "EXCEPTION_HANDLER": "common.exception_handlers.custom_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Codeyard API",
-    "DESCRIPTION": "MVP API for managing coding tasks and solutions with authentication.",
+    "DESCRIPTION": (
+        "MVP API for managing coding tasks and solutions with authentication."
+    ),
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SERVERS": [
@@ -256,12 +260,19 @@ SECURE_CONTENT_SECURITY_POLICY = {
 }
 
 # Logging
+# Ensure logs directory exists
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(exist_ok=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "format": (
+                "{levelname} {asctime} {module} {process:d} "
+                "{thread:d} {message}"
+            ),
             "style": "{",
         },
     },

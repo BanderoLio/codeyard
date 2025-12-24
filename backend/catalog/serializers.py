@@ -48,7 +48,6 @@ class ProgrammingTaskSerializer(serializers.ModelSerializer):
     - Task name length and uniqueness per user
     - Description length
     - URL format for resource link
-    - Ensures HTML is sanitized in all text fields
     """
     
     added_by = serializers.StringRelatedField(read_only=True)
@@ -76,20 +75,20 @@ class ProgrammingTaskSerializer(serializers.ModelSerializer):
         )
 
     def validate_name(self, value: str) -> str:
-        """Validate and sanitize task name."""
+        """Validate task name."""
         validators.validate_task_name_length(value)
-        return validators.sanitize_html(value.strip())
+        return value.strip()
 
     def validate_description(self, value: str) -> str:
-        """Validate and sanitize task description."""
+        """Validate task description."""
         validators.validate_description_length(value)
-        return validators.sanitize_html(value.strip())
+        return value.strip()
 
     def validate_resource(self, value: str) -> str:
-        """Validate and sanitize resource URL."""
+        """Validate resource URL."""
         if value:
             validators.validate_url_format(value)
-        return validators.sanitize_html(value.strip())
+        return value.strip() if value else value
 
     def validate(self, attrs):
         """Validate task uniqueness and other constraints."""
@@ -113,7 +112,6 @@ class SolutionSerializer(serializers.ModelSerializer):
     Validates:
     - Code snippet length and non-empty content
     - Explanation text length
-    - HTML sanitization for code and explanation
     """
     
     user = serializers.StringRelatedField(read_only=True)
@@ -121,6 +119,9 @@ class SolutionSerializer(serializers.ModelSerializer):
     language_name = serializers.CharField(
         source="language.name", read_only=True
     )
+    positive_reviews_count = serializers.IntegerField(read_only=True)
+    negative_reviews_count = serializers.IntegerField(read_only=True)
+    user_review = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Solution
@@ -137,6 +138,9 @@ class SolutionSerializer(serializers.ModelSerializer):
             "published_at",
             "created_at",
             "updated_at",
+            "positive_reviews_count",
+            "negative_reviews_count",
+            "user_review",
         )
         read_only_fields = (
             "id",
@@ -144,18 +148,48 @@ class SolutionSerializer(serializers.ModelSerializer):
             "published_at",
             "created_at",
             "updated_at",
+            "positive_reviews_count",
+            "negative_reviews_count",
+            "user_review",
         )
 
+    def get_user_review(self, obj):
+        """Get review by current user if exists."""
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return None
+        
+        # Check if user_review_list was prefetched
+        if hasattr(obj, "user_review_list") and obj.user_review_list:
+            user_review = obj.user_review_list[0]
+            return {
+                "id": user_review.id,
+                "review_type": user_review.review_type,
+            }
+        
+        # Fallback: query directly if not prefetched
+        try:
+            user_review = obj.reviews.filter(added_by=request.user).first()
+            if user_review:
+                return {
+                    "id": user_review.id,
+                    "review_type": user_review.review_type,
+                }
+        except Exception:
+            pass
+        
+        return None
+
     def validate_code(self, value: str) -> str:
-        """Validate and sanitize code snippet."""
+        """Validate code snippet."""
         validators.validate_code_length(value)
-        return validators.sanitize_html(value.strip())
+        return value.strip()
 
     def validate_explanation(self, value: str) -> str:
-        """Validate and sanitize explanation text."""
+        """Validate explanation text."""
         if value:
             validators.validate_explanation_length(value)
-        return validators.sanitize_html(value.strip())
+        return value.strip() if value else value
 
     def create(self, validated_data):
         result = services.create_solution(

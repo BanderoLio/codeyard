@@ -1,13 +1,14 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { Lightbulb, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorDisplay } from '@/components/error-display';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { SolutionCard } from './solution-card';
 import { useTranslations } from 'next-intl';
 import type { TSolution } from '../types';
+import { CatalogPagination } from './catalog-pagination';
 
 type TSolutionsListPresentationProps = {
   solutions: TSolution[];
@@ -18,6 +19,12 @@ type TSolutionsListPresentationProps = {
   onAddSolution: () => void;
   userSolutions: TSolution[];
   publicSolutions: TSolution[];
+  page: number;
+  totalPages: number;
+  totalCount: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  onPageChange: (page: number) => void;
 };
 
 export function SolutionsListPresentation({
@@ -29,8 +36,15 @@ export function SolutionsListPresentation({
   onAddSolution,
   userSolutions,
   publicSolutions,
+  page,
+  totalPages,
+  totalCount,
+  hasNext,
+  hasPrevious,
+  onPageChange,
 }: TSolutionsListPresentationProps) {
   const t = useTranslations('TaskDetail');
+  const tErrors = useTranslations('Errors');
 
   if (isLoading) {
     return (
@@ -56,7 +70,7 @@ export function SolutionsListPresentation({
     return (
       <ErrorDisplay
         title={t('failedToLoadSolutions')}
-        message={getErrorMessage(error)}
+        message={getTranslatedErrorMessage(error, tErrors)}
         onRetry={onRetry}
       />
     );
@@ -102,9 +116,10 @@ export function SolutionsListPresentation({
           className="bg-card border-muted flex flex-col items-center justify-center rounded-lg border py-12 text-center sm:py-16"
           role="status"
         >
-          <div className="mb-4 text-4xl sm:text-6xl" aria-hidden="true">
-            💡
-          </div>
+          <Lightbulb
+            className="text-muted-foreground mb-4 h-16 w-16 sm:h-24 sm:w-24"
+            aria-hidden="true"
+          />
           <h3 className="mb-2 text-lg font-semibold sm:text-xl">
             {t('noSolutions')}
           </h3>
@@ -116,6 +131,17 @@ export function SolutionsListPresentation({
             {t('addSolution')}
           </Button>
         </div>
+      )}
+
+      {solutions.length > 0 && (
+        <CatalogPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+          onPageChange={onPageChange}
+        />
       )}
     </div>
   );

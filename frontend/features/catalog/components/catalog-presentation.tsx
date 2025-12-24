@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { ClipboardList, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   TaskCard,
@@ -9,7 +9,7 @@ import {
   CatalogPagination,
 } from '../index';
 import { ErrorDisplay } from '@/components/error-display';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { useTranslations } from 'next-intl';
 import type { TProgrammingTask, TCategory, TDifficulty } from '../types';
 import type { TSortOption } from '../hooks/use-catalog-filters';
@@ -27,6 +27,10 @@ type TCatalogFiltersState = {
   setPage: (value: number) => void;
   resetPage: () => void;
   debouncedSearch: string;
+  myTasksOnly: boolean;
+  setMyTasksOnly: (value: boolean) => void;
+  solvedByMe: boolean;
+  setSolvedByMe: (value: boolean) => void;
 };
 
 type TCatalogPresentationProps = {
@@ -59,6 +63,7 @@ export function CatalogPresentation({
   onCreateTask,
 }: TCatalogPresentationProps) {
   const t = useTranslations('Catalog');
+  const tErrors = useTranslations('Errors');
 
   return (
     <>
@@ -91,6 +96,16 @@ export function CatalogPresentation({
           filters.setSortBy(value);
           filters.resetPage();
         }}
+        myTasksOnly={filters.myTasksOnly}
+        onMyTasksOnlyChange={(value) => {
+          filters.setMyTasksOnly(value);
+          filters.resetPage();
+        }}
+        solvedByMe={filters.solvedByMe}
+        onSolvedByMeChange={(value) => {
+          filters.setSolvedByMe(value);
+          filters.resetPage();
+        }}
         categories={categories}
         difficulties={difficulties}
       />
@@ -108,13 +123,16 @@ export function CatalogPresentation({
         </div>
       ) : error ? (
         <ErrorDisplay
-          message={getErrorMessage(error)}
+          message={getTranslatedErrorMessage(error, tErrors)}
           onRetry={onRetry}
           className="mx-auto max-w-2xl"
         />
       ) : tasks.length === 0 ? (
         <div className="bg-card border-muted flex flex-col items-center justify-center rounded-lg border py-12 text-center sm:py-16">
-          <div className="mb-4 text-4xl sm:text-6xl">📋</div>
+          <ClipboardList
+            className="text-muted-foreground mb-4 h-16 w-16 sm:h-24 sm:w-24"
+            aria-hidden="true"
+          />
           <h3 className="mb-2 text-lg font-semibold sm:text-xl">
             {t('noTasks')}
           </h3>

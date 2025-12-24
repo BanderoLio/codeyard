@@ -2,7 +2,6 @@
 
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { catalogApi } from '../catalog.api';
 import {
@@ -24,7 +23,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useState, useMemo } from 'react';
 import type { TCreateSolution, TSolution, TUpdateSolution } from '../types';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { CodeEditor } from '@/components/code-editor';
 import { useTranslations } from 'next-intl';
@@ -50,6 +49,7 @@ export function SolutionForm({
 }: TSolutionFormProps) {
   const t = useTranslations('SolutionForm');
   const tValidation = useTranslations('Validation');
+  const tErrors = useTranslations('Errors');
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +84,7 @@ export function SolutionForm({
           context.previousSolutions,
         );
       }
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = getTranslatedErrorMessage(error, tErrors);
       setError(errorMessage);
       toast.error(errorMessage);
     },
@@ -128,7 +128,7 @@ export function SolutionForm({
           context.previousSolutions,
         );
       }
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = getTranslatedErrorMessage(error, tErrors);
       setError(errorMessage);
       toast.error(errorMessage);
     },
@@ -164,7 +164,7 @@ export function SolutionForm({
   );
 
   return (
-    <div className="bg-card rounded-lg border shadow-sm">
+    <div className="bg-card rounded-lg border shadow-sm overflow-hidden">
       <div className="bg-muted/30 border-b px-4 py-3 sm:px-6">
         <h3 className="text-base font-semibold sm:text-lg">
           {solutionId ? t('editTitle') : t('createTitle')}
@@ -182,7 +182,7 @@ export function SolutionForm({
               </div>
             )}
             <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
-              <div className="space-y-6">
+              <div className="space-y-6 min-w-0">
                 <FormField
                   control={form.control}
                   name="language"
@@ -239,7 +239,7 @@ export function SolutionForm({
                           placeholder={t('explanationPlaceholder')}
                           {...field}
                           rows={8}
-                          className="resize-y"
+                          className="resize-y max-h-[400px] overflow-y-auto"
                         />
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
@@ -251,25 +251,27 @@ export function SolutionForm({
                 />
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-6 min-w-0">
                 <FormField
                   control={form.control}
                   name="code"
                   render={({ field }) => (
-                    <FormItem className="flex h-full flex-col">
+                    <FormItem className="flex h-full flex-col min-h-0">
                       <FormLabel className="text-base">
                         {t('codeLabel')}
                       </FormLabel>
                       <FormControl>
-                        <CodeEditor
-                          value={field.value}
-                          onChange={field.onChange}
-                          language={selectedLanguageName}
-                          placeholder={t('codePlaceholder')}
-                          minHeight="400px"
-                          maxHeight="calc(100vh - 300px)"
-                          className="border-input bg-background flex-1"
-                        />
+                        <div className="min-h-0 flex-1">
+                          <CodeEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                            language={selectedLanguageName}
+                            placeholder={t('codePlaceholder')}
+                            minHeight="400px"
+                            maxHeight="calc(100vh - 300px)"
+                            className="border-input bg-background w-full"
+                          />
+                        </div>
                       </FormControl>
                       <p className="text-muted-foreground text-xs">
                         {t('codeHint')}

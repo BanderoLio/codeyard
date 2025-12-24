@@ -64,12 +64,12 @@ export function CodeEditor({
 
   return (
     <div
-      className={`relative rounded-md border overflow-hidden bg-background ${className}`}
+      className={`bg-background relative overflow-hidden rounded-md border ${className}`}
       style={{ minHeight, maxHeight }}
     >
       <CodeMirror
         value={value}
-        height="100%"
+        height={maxHeight}
         minHeight={minHeight}
         maxHeight={maxHeight}
         theme={isDark ? oneDark : undefined}
@@ -88,9 +88,8 @@ export function CodeEditor({
           highlightSelectionMatches: true,
           tabSize: 2,
         }}
-        className="text-sm font-mono [&_.cm-editor]:outline-none [&_.cm-scroller]:overflow-auto"
+        className="font-mono text-sm [&_.cm-editor]:outline-none [&_.cm-scroller]:overflow-auto [&_.cm-editor]:h-full [&_.cm-scroller]:h-full"
       />
     </div>
   );
 }
-

@@ -23,7 +23,7 @@ export function EditSolutionPresentation({
   onCancel,
 }: TEditSolutionPresentationProps) {
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-4 sm:py-8">
+    <div className="container mx-auto max-w-7xl px-4 py-4 sm:py-8">
       <Breadcrumbs items={breadcrumbItems} className="mb-4" />
 
       <SolutionForm

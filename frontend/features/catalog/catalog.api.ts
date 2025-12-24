@@ -26,6 +26,8 @@ type TTaskFilters = {
   status?: string;
   ordering?: string;
   page?: number;
+  added_by?: number;
+  solved_by?: number;
 };
 
 type TSolutionFilters = {
@@ -80,6 +82,12 @@ export const catalogApi = {
     }
     if (filters?.page) {
       params.append('page', filters.page.toString());
+    }
+    if (filters?.added_by) {
+      params.append('added_by', filters.added_by.toString());
+    }
+    if (filters?.solved_by) {
+      params.append('solved_by', filters.solved_by.toString());
     }
 
     const response = await apiClient.get<
