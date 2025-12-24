@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from '@/navigation';
 import { useState } from 'react';
@@ -11,14 +10,7 @@ import { catalogApi } from '../catalog.api';
 import { useCreateTask } from '../hooks/use-create-task';
 import { useAuth } from '@/features/auth/use-auth';
 import { CreateTaskPresentation } from './create-task-presentation';
-
-type TTaskFormData = {
-  name: string;
-  description: string;
-  resource?: string;
-  category: number;
-  difficulty: number;
-};
+import { createTaskSchema, type TTaskFormData } from '../types/task-form.type';
 
 export function CreateTaskContainer() {
   useAuth();
@@ -26,13 +18,7 @@ export function CreateTaskContainer() {
   const t = useTranslations('Validation');
   const [error, setError] = useState<string | null>(null);
 
-  const taskSchema = z.object({
-    name: z.string().min(1, t('nameRequired')).max(255),
-    description: z.string().min(1, t('descriptionRequired')),
-    resource: z.url(t('invalidUrl')).optional().or(z.literal('')),
-    category: z.number().min(1, t('categoryRequired')),
-    difficulty: z.number().min(1, t('difficultyRequired')),
-  });
+  const taskSchema = createTaskSchema(t);
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],

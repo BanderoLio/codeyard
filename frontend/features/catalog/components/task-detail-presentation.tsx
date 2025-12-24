@@ -49,15 +49,13 @@ export function TaskDetailPresentation({
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold sm:text-2xl">{t('solutions')}</h2>
-        {user && (
-          <Button
-            onClick={() => onShowSolutionForm(true)}
-            className="w-full sm:w-auto"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {t('addSolution')}
-          </Button>
-        )}
+        <Button
+          onClick={() => onShowSolutionForm(true)}
+          className="w-full sm:w-auto"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          {t('addSolution')}
+        </Button>
       </div>
 
       {solutionFormSlot && <div className="mb-6">{solutionFormSlot}</div>}

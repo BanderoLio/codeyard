@@ -18,7 +18,6 @@ type TSolutionsListPresentationProps = {
   onAddSolution: () => void;
   userSolutions: TSolution[];
   publicSolutions: TSolution[];
-  showAddButton?: boolean;
 };
 
 export function SolutionsListPresentation({
@@ -30,7 +29,6 @@ export function SolutionsListPresentation({
   onAddSolution,
   userSolutions,
   publicSolutions,
-  showAddButton = false,
 }: TSolutionsListPresentationProps) {
   const t = useTranslations('TaskDetail');
 
@@ -113,12 +111,10 @@ export function SolutionsListPresentation({
           <p className="text-muted-foreground mb-4 max-w-md px-4 text-sm sm:text-base">
             {t('noSolutionsDesc')}
           </p>
-          {showAddButton && (
-            <Button onClick={onAddSolution} className="w-full sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-              {t('addSolution')}
-            </Button>
-          )}
+          <Button onClick={onAddSolution} className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
+            {t('addSolution')}
+          </Button>
         </div>
       )}
     </div>
