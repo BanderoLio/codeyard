@@ -129,6 +129,12 @@ pnpm dev
 Frontend будет доступен на: http://localhost:3000
 
 ---
+## Скриншоты
+
+![главная](docs/screenshots/main_page.png)
+![каталог задач](docs/screenshots/catalog.png)
+![задача](docs/screenshots/task_detail.png)
+![редактирование решения](docs/screenshots/solution_edit.png)
 
 ## API Документация
 
@@ -174,7 +180,7 @@ Frontend будет доступен на: http://localhost:3000
 
 ## Архитектура
 
-![Диаграмма взаимодействия компонентов](docs/architecture.drawio.png)
+![Диаграмма взаимодействия компонентов](docs/diagrams/architecture.drawio.png)
 
 
 ### Структура Backend
@@ -216,7 +222,7 @@ backend/
 
 ### База данных
 
-![ER диаграмма](docs/codeyard_db.drawio.png)
+![ER диаграмма](docs/diagrams/codeyard_db.drawio.png)
 
 
 ---
