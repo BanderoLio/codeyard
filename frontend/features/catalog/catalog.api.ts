@@ -12,23 +12,25 @@ import type {
   TCreateReview,
 } from './types';
 
-type PaginatedResponse<T> = {
+type TPaginatedResponse<T> = {
   count: number;
   next: string | null;
   previous: string | null;
   results: T[];
 };
 
-type TaskFilters = {
+type TTaskFilters = {
   category?: number;
   difficulty?: number;
   search?: string;
   status?: string;
   ordering?: string;
   page?: number;
+  added_by?: number;
+  solved_by?: number;
 };
 
-type SolutionFilters = {
+type TSolutionFilters = {
   task?: number;
   is_public?: boolean;
   language?: number;
@@ -60,8 +62,8 @@ export const catalogApi = {
   },
 
   getTasks: async (
-    filters?: TaskFilters,
-  ): Promise<PaginatedResponse<TProgrammingTask>> => {
+    filters?: TTaskFilters,
+  ): Promise<TPaginatedResponse<TProgrammingTask>> => {
     const params = new URLSearchParams();
     if (filters?.category) {
       params.append('category', filters.category.toString());
@@ -81,9 +83,15 @@ export const catalogApi = {
     if (filters?.page) {
       params.append('page', filters.page.toString());
     }
+    if (filters?.added_by) {
+      params.append('added_by', filters.added_by.toString());
+    }
+    if (filters?.solved_by) {
+      params.append('solved_by', filters.solved_by.toString());
+    }
 
     const response = await apiClient.get<
-      PaginatedResponse<TProgrammingTask>,
+      TPaginatedResponse<TProgrammingTask>,
       '/api/tasks/'
     >('/api/tasks/', params);
     return response.data;
@@ -100,8 +108,10 @@ export const catalogApi = {
   createTask: async (
     data: Omit<
       TProgrammingTask,
-      'id' | 'added_by' | 'created_at' | 'updated_at' | 'status'
-    >,
+      'id' | 'added_by' | 'created_at' | 'updated_at' | 'status' | 'resource'
+    > & {
+      resource?: string;
+    },
   ): Promise<TProgrammingTask> => {
     const response = await apiClient.post<
       TProgrammingTask,
@@ -130,8 +140,8 @@ export const catalogApi = {
   },
 
   getSolutions: async (
-    filters?: SolutionFilters,
-  ): Promise<PaginatedResponse<TSolution>> => {
+    filters?: TSolutionFilters,
+  ): Promise<TPaginatedResponse<TSolution>> => {
     const params = new URLSearchParams();
     if (filters?.task) {
       params.append('task', filters.task.toString());
@@ -150,7 +160,7 @@ export const catalogApi = {
     }
 
     const response = await apiClient.get<
-      PaginatedResponse<TSolution>,
+      TPaginatedResponse<TSolution>,
       '/api/solutions/'
     >('/api/solutions/', params);
     return response.data;
@@ -208,7 +218,7 @@ export const catalogApi = {
       ? new URLSearchParams({ solution: solutionId.toString() })
       : undefined;
     const response = await apiClient.get<
-      PaginatedResponse<TReview>,
+      TPaginatedResponse<TReview>,
       '/api/reviews/'
     >('/api/reviews/', params);
     return response.data.results;

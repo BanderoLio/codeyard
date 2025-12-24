@@ -11,10 +11,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useMounted } from '@/hooks/use-mounted';
 import { AvatarFallback } from '@radix-ui/react-avatar';
 import { UserCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 
 export function ProfileNavbar() {
-  const { mounted } = useMounted();
+  const mounted = useMounted();
   const auth = useAppStoreApi().use.authorization();
   if (!mounted) {
     return <Skeleton className="min-h-8 min-w-8 animate-pulse"></Skeleton>;

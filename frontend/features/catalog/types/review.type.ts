@@ -1,9 +1,9 @@
-export type ReviewType = 0 | 1;
+export type EReviewType = 0 | 1;
 
 export type TReview = {
   id: number;
   solution: number;
-  review_type: ReviewType;
+  review_type: EReviewType;
   added_by: string;
   created_at: string;
   updated_at: string;
@@ -11,5 +11,5 @@ export type TReview = {
 
 export type TCreateReview = {
   solution: number;
-  review_type: ReviewType;
+  review_type: EReviewType;
 };

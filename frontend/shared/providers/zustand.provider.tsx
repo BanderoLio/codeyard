@@ -1,7 +1,7 @@
 'use client';
 
 import { withSelectors, type WithSelectors } from '@/lib/zustand/selectors';
-import { AppStore, createAppStore } from '@/lib/zustand/store';
+import { TAppStore, createAppStore } from '@/lib/zustand/store';
 import {
   setAccessTokenGetter,
   setTokenRefreshHandler,
@@ -11,13 +11,13 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useStore } from 'zustand/react';
 import { authApi } from '@/features/auth/auth.api';
 
-type AppStoreApi = WithSelectors<typeof createAppStore>;
+type TAppStoreApi = WithSelectors<typeof createAppStore>;
 
-const ZustandContext = createContext<AppStoreApi | undefined>(undefined);
+const ZustandContext = createContext<TAppStoreApi | undefined>(undefined);
 
 export function ZustandProvider({ children }: { children: React.ReactNode }) {
-  const [storeApi] = useState<AppStoreApi>(
-    () => withSelectors(createAppStore as never) as AppStoreApi,
+  const [storeApi] = useState<TAppStoreApi>(
+    () => withSelectors(createAppStore as never) as TAppStoreApi,
   );
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function ZustandProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAppStore<T>(selector: (state: AppStore) => T) {
+export function useAppStore<T>(selector: (state: TAppStore) => T) {
   return useStore(useAppStoreApi(), selector);
 }
 

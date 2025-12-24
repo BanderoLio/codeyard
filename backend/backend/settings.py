@@ -200,15 +200,27 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
         "rest_framework.filters.OrderingFilter",
     ),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PAGINATION_CLASS": (
+        "rest_framework.pagination.PageNumberPagination"
+    ),
     "PAGE_SIZE": 20,
+    "EXCEPTION_HANDLER": "common.exception_handlers.custom_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Codeyard API",
-    "DESCRIPTION": "MVP API for managing coding tasks and solutions.",
+    "DESCRIPTION": (
+        "MVP API for managing coding tasks and solutions with authentication."
+    ),
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SERVERS": [
+        {"url": "http://localhost:8000", "description": "Development server"},
+    ],
+    "CONTACT": {
+        "name": "Support",
+        "email": "support@codeyard.com",
+    },
 }
 
 SIMPLE_JWT = {
@@ -232,3 +244,74 @@ REFRESH_COOKIE_NAME = "refreshToken"
 REFRESH_COOKIE_SECURE = os.getenv("DJANGO_SECURE_COOKIES", "false") == "true"
 REFRESH_COOKIE_SAMESITE = os.getenv("DJANGO_REFRESH_COOKIE_SAMESITE", "Lax")
 REFRESH_COOKIE_HTTPONLY = True
+
+# Security Headers
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_SECURITY_POLICY = {
+    "default-src": ("'self'",),
+    "script-src": ("'self'",),
+    "style-src": ("'self'", "'unsafe-inline'"),
+}
+
+# Logging
+# Ensure logs directory exists
+LOGS_DIR = BASE_DIR / "logs"
+LOGS_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": (
+                "{levelname} {asctime} {module} {process:d} "
+                "{thread:d} {message}"
+            ),
+            "style": "{",
+        },
+    },
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": BASE_DIR / "logs" / "django.log",
+            "maxBytes": 1024 * 1024 * 10,  # 10MB
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.security": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "catalog": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/navigation';
 import { useEffect } from 'react';
 
 export function useAuth() {

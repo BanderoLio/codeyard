@@ -1,18 +1,18 @@
 'use client';
 
 import { useAppStoreApi } from '@/shared/providers/zustand.provider';
-import type { LinkProps } from 'next/link';
-import Link from 'next/link';
-import { useState, type PropsWithChildren } from 'react';
+import { Link } from '@/navigation';
+import { useState, type ComponentProps, type PropsWithChildren } from 'react';
 import { AuthModal } from './auth-modal';
 import { Slot } from '@radix-ui/react-slot';
+// import type { LinkProps } from 'next/link';
 
 export function AuthLink({
   children,
   asChild = false,
   ...props
 }: PropsWithChildren<
-  LinkProps & {
+  ComponentProps<typeof Link> & {
     asChild?: boolean;
   }
 >) {

@@ -1,5 +1,10 @@
 import type { TProgrammingTaskDetail } from './task.type';
 
+export type TUserReview = {
+  id: number;
+  review_type: 0 | 1;
+} | null;
+
 export type TSolution = {
   id: number;
   task: number;
@@ -13,6 +18,9 @@ export type TSolution = {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  positive_reviews_count: number;
+  negative_reviews_count: number;
+  user_review: TUserReview;
 };
 
 export type TCreateSolution = {

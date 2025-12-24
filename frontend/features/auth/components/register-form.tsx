@@ -5,28 +5,38 @@ import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 import { Form, FormField } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from '@/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { authApi } from '../auth.api';
-import { registerSchema, TRegister } from '../types/register.type';
-import { WithRedirect } from './with-redirect';
+import { createRegisterSchema, TRegister } from '../types/register.type';
 import { UserPlusIcon } from 'lucide-react';
 import { IconButton } from '@/components/icon-button';
 import { Spinner } from '@/components/ui/spinner';
-import { getErrorMessage } from '@/lib/utils/error-handler';
+import { getTranslatedErrorMessage } from '@/lib/utils/error-handler';
+import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
-export function RegisterForm() {
+type TRegisterFormProps = {
+  onSuccess?: () => void;
+};
+
+export function RegisterForm({ onSuccess }: TRegisterFormProps = {}) {
+  const t = useTranslations('Auth');
+  const tValidation = useTranslations('Validation');
+  const tErrors = useTranslations('Errors');
   const form = useForm<TRegister>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(createRegisterSchema(tValidation)),
     defaultValues: {
       username: '',
       email: '',
       password: '',
+      password_confirm: '',
     },
   });
   const router = useRouter();
+  const queryClient = useQueryClient();
   const storeApi = useAppStoreApi();
   const setAuthorization = storeApi.use.setAuthorization();
   const setUser = storeApi.use.setUser();
@@ -42,10 +52,18 @@ export function RegisterForm() {
       } catch (err) {
         console.error('Failed to fetch user data:', err);
       }
-      router.push('/catalog');
+      queryClient.clear();
+      toast.success(t('signupSuccess'));
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.replace('/catalog');
+      }
     },
     onError: (err: Error) => {
-      setError(getErrorMessage(err));
+      const errorMessage = getTranslatedErrorMessage(err, tErrors);
+      setError(errorMessage);
+      toast.error(errorMessage);
     },
   });
 
@@ -55,56 +73,71 @@ export function RegisterForm() {
   };
 
   return (
-    <WithRedirect to="/catalog">
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
-        >
-          <FormField
-            control={form.control}
-            render={({ field }) => (
-              <FormItem label="Username">
-                <Input placeholder="Enter your username" {...field} />
-              </FormItem>
-            )}
-            name="username"
-          />
-          <FormField
-            control={form.control}
-            render={({ field }) => (
-              <FormItem label="Email">
-                <Input type="email" placeholder="Enter your email" {...field} />
-              </FormItem>
-            )}
-            name="email"
-          />
-          <FormField
-            control={form.control}
-            render={({ field }) => (
-              <FormItem label="Password">
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  {...field}
-                />
-              </FormItem>
-            )}
-            name="password"
-          />
-          {error && (
-            <div className="text-destructive text-center text-sm">{error}</div>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
+        <FormField
+          control={form.control}
+          render={({ field }) => (
+            <FormItem label={t('usernameLabel')}>
+              <Input placeholder={t('usernamePlaceholder')} {...field} />
+            </FormItem>
           )}
-          <IconButton
-            className="mt-2"
-            type="submit"
-            disabled={registerMutation.isPending}
-            label="Sign Up"
-          >
-            {registerMutation.isPending ? <Spinner /> : <UserPlusIcon />}
-          </IconButton>
-        </form>
-      </Form>
-    </WithRedirect>
+          name="username"
+        />
+        <FormField
+          control={form.control}
+          render={({ field }) => (
+            <FormItem label={t('emailLabel')}>
+              <Input
+                type="email"
+                placeholder={t('emailPlaceholder')}
+                {...field}
+              />
+            </FormItem>
+          )}
+          name="email"
+        />
+        <FormField
+          control={form.control}
+          render={({ field }) => (
+            <FormItem label={t('passwordLabel')}>
+              <Input
+                type="password"
+                placeholder={t('passwordPlaceholder')}
+                {...field}
+              />
+            </FormItem>
+          )}
+          name="password"
+        />
+        <FormField
+          control={form.control}
+          render={({ field }) => (
+            <FormItem label={t('passwordConfirmLabel')}>
+              <Input
+                type="password"
+                placeholder={t('passwordConfirmPlaceholder')}
+                {...field}
+              />
+            </FormItem>
+          )}
+          name="password_confirm"
+        />
+        {error && (
+          <div className="text-destructive text-center text-sm">{error}</div>
+        )}
+        <IconButton
+          className="mt-2"
+          type="submit"
+          disabled={registerMutation.isPending}
+          label={t('signup')}
+        >
+          {registerMutation.isPending ? <Spinner /> : <UserPlusIcon />}
+        </IconButton>
+      </form>
+    </Form>
   );
 }
