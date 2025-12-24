@@ -1,12 +1,20 @@
 """Tests for authentication endpoints."""
 
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 User = get_user_model()
 
 
+@override_settings(
+    CACHES={
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
+)
 class AuthenticationAPITests(APITestCase):
     """Tests for authentication endpoints."""
 
