@@ -1,13 +1,15 @@
 'use client';
 
+import { useEffect } from 'react';
 import { CodeBlock } from '@/components/code-block';
 import { Button } from '@/components/ui/button';
 import { CodeyardIcon } from '@/components/codeyard-icon';
 import { cn } from '@/lib/utils';
 import { pixelifySans } from '@/app/(fonts)/fonts';
 import { ArrowRight, ShieldCheck, Sparkles, Wand2 } from 'lucide-react';
-import { Link } from '@/navigation';
+import { Link, useRouter } from '@/navigation';
 import { useTranslations } from 'next-intl';
+import { useAppStoreApi } from '@/shared/providers/zustand.provider';
 
 const sampleSnippet = `def solve(tasks):
     completed = []
@@ -20,6 +22,14 @@ print("Codeyard keeps solutions tidy!")`;
 
 export function HomePage() {
   const t = useTranslations('Home');
+  const router = useRouter();
+  const authorization = useAppStoreApi().use.authorization();
+
+  useEffect(() => {
+    if (authorization) {
+      router.replace('/catalog');
+    }
+  }, [authorization, router]);
 
   const stats = [
     { value: '2.7k+', label: t('statSolutions') },

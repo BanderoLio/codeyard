@@ -28,12 +28,10 @@ import { getErrorMessage } from '@/lib/utils/error-handler';
 import { toast } from 'sonner';
 import { CodeEditor } from '@/components/code-editor';
 import { useTranslations } from 'next-intl';
-
-type TSolutionFormData = {
-  code: string;
-  language: number;
-  explanation?: string;
-};
+import {
+  createSolutionSchema,
+  type TSolutionFormData,
+} from '../types/solution-form.type';
 
 type TSolutionFormProps = {
   taskId: number;
@@ -55,11 +53,7 @@ export function SolutionForm({
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
-  const solutionSchema = z.object({
-    code: z.string().min(1, tValidation('codeRequired')),
-    language: z.number().min(1, tValidation('languageRequired')),
-    explanation: z.string().optional(),
-  });
+  const solutionSchema = createSolutionSchema(tValidation);
 
   const { data: languages } = useQuery({
     queryKey: ['languages'],

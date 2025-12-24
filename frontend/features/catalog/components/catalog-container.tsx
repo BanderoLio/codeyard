@@ -5,9 +5,14 @@ import { catalogApi } from '../catalog.api';
 import { useCatalogFilters } from '../hooks/use-catalog-filters';
 import { useCatalogTasks } from '../hooks/use-catalog-tasks';
 import { CatalogPresentation } from './catalog-presentation';
+import { AuthModal } from '@/features/auth/components/auth-modal';
+import { useRequireAuth } from '@/features/auth/hooks/use-require-auth';
+import { useRouter } from '@/navigation';
 
 export function CatalogContainer() {
   const filters = useCatalogFilters();
+  const router = useRouter();
+  const { requireAuth, showAuthModal, setShowAuthModal } = useRequireAuth();
   const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: () => catalogApi.getCategories(),
@@ -38,18 +43,24 @@ export function CatalogContainer() {
   const totalPages = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
 
   return (
-    <CatalogPresentation
-      tasks={tasks}
-      categories={categories}
-      difficulties={difficulties}
-      isLoading={isLoading}
-      error={error}
-      onRetry={() => refetch()}
-      filters={filters}
-      hasNext={hasNext}
-      hasPrevious={hasPrevious}
-      totalPages={totalPages}
-      totalCount={totalCount}
-    />
+    <>
+      <CatalogPresentation
+        tasks={tasks}
+        categories={categories}
+        difficulties={difficulties}
+        isLoading={isLoading}
+        error={error}
+        onRetry={() => refetch()}
+        filters={filters}
+        hasNext={hasNext}
+        hasPrevious={hasPrevious}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        onCreateTask={() =>
+          requireAuth(() => router.push('/catalog/create-task'))
+        }
+      />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+    </>
   );
 }

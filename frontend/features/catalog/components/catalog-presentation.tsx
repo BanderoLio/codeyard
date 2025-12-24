@@ -1,6 +1,5 @@
 'use client';
 
-import { Link } from '@/navigation';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,6 +41,7 @@ type TCatalogPresentationProps = {
   hasPrevious: boolean;
   totalPages: number;
   totalCount: number;
+  onCreateTask: () => void;
 };
 
 export function CatalogPresentation({
@@ -56,6 +56,7 @@ export function CatalogPresentation({
   hasPrevious,
   totalPages,
   totalCount,
+  onCreateTask,
 }: TCatalogPresentationProps) {
   const t = useTranslations('Catalog');
 
@@ -63,11 +64,9 @@ export function CatalogPresentation({
     <>
       <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold sm:text-3xl">{t('title')}</h1>
-        <Button asChild className="w-full sm:w-auto">
-          <Link href="/catalog/create-task">
-            <Plus className="mr-2 h-4 w-4" />
-            {t('createTask')}
-          </Link>
+        <Button onClick={onCreateTask} className="w-full sm:w-auto">
+          <Plus className="mr-2 h-4 w-4" />
+          {t('createTask')}
         </Button>
       </div>
 
@@ -125,11 +124,9 @@ export function CatalogPresentation({
           {!filters.debouncedSearch &&
             !filters.categoryFilter &&
             !filters.difficultyFilter && (
-              <Button asChild className="w-full sm:w-auto">
-                <Link href="/catalog/create-task">
-                  <Plus className="mr-2 h-4 w-4" />
-                  {t('createTask')}
-                </Link>
+              <Button onClick={onCreateTask} className="w-full sm:w-auto">
+                <Plus className="mr-2 h-4 w-4" />
+                {t('createTask')}
               </Button>
             )}
         </div>

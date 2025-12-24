@@ -1,8 +1,18 @@
-import z from 'zod';
+import { z } from 'zod';
 
-export const loginSchema = z.object({
-  username: z.string().min(3).max(50),
-  password: z.string().min(5).max(255),
-});
+export function createLoginSchema(t: (key: string) => string) {
+  return z.object({
+    username: z
+      .string()
+      .min(1, t('usernameRequired'))
+      .min(3, t('usernameMin'))
+      .max(50, t('usernameMax')),
+    password: z
+      .string()
+      .min(1, t('passwordRequired'))
+      .min(5, t('passwordMin'))
+      .max(255, t('passwordMax')),
+  });
+}
 
-export type TLogin = z.infer<typeof loginSchema>;
+export type TLogin = z.infer<ReturnType<typeof createLoginSchema>>;

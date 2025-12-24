@@ -23,14 +23,7 @@ import { FormItem as CustomFormItem } from '@/components/form-item';
 import { Breadcrumbs } from '@/widgets/breadcrumbs';
 import { useTranslations } from 'next-intl';
 import type { TCategory, TDifficulty } from '../types';
-
-type TTaskFormData = {
-  name: string;
-  description: string;
-  resource?: string;
-  category: number;
-  difficulty: number;
-};
+import type { TTaskFormData } from '../types/task-form.type';
 
 type TCreateTaskPresentationProps = {
   form: UseFormReturn<TTaskFormData>;

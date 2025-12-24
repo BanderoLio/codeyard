@@ -10,6 +10,8 @@ import { ErrorDisplay } from '@/components/error-display';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/navigation';
 import { useTranslations } from 'next-intl';
+import { AuthModal } from '@/features/auth/components/auth-modal';
+import { useRequireAuth } from '@/features/auth/hooks/use-require-auth';
 
 const SolutionFormLazy = lazy(() =>
   import('./solution-form').then((mod) => ({
@@ -25,6 +27,11 @@ export function TaskDetailContainer({ taskId }: TTaskDetailContainerProps) {
   const t = useTranslations('TaskDetail');
   const user = useAppStoreApi().use.user();
   const [showSolutionForm, setShowSolutionForm] = useState(false);
+  const { requireAuth, showAuthModal, setShowAuthModal } = useRequireAuth();
+
+  const handleAddSolution = () => {
+    requireAuth(() => setShowSolutionForm(true));
+  };
 
   const {
     data: task,
@@ -86,36 +93,39 @@ export function TaskDetailContainer({ taskId }: TTaskDetailContainerProps) {
   }
 
   return (
-    <TaskDetailPresentation
-      task={task}
-      taskId={taskId}
-      categories={categories}
-      difficulties={difficulties}
-      user={user}
-      showSolutionForm={showSolutionForm}
-      onShowSolutionForm={setShowSolutionForm}
-      solutionFormSlot={
-        showSolutionForm ? (
-          <Suspense
-            fallback={
-              <div className="bg-card rounded-lg border p-6 shadow-sm">
-                <Skeleton className="mb-4 h-6 w-48" />
-                <Skeleton className="mb-4 h-4 w-full" />
-                <Skeleton className="mb-6 h-32 w-full" />
-                <Skeleton className="h-10 w-32" />
-              </div>
-            }
-          >
-            <SolutionFormLazy
-              taskId={taskId}
-              onSuccess={() => {
-                setShowSolutionForm(false);
-              }}
-              onCancel={() => setShowSolutionForm(false)}
-            />
-          </Suspense>
-        ) : null
-      }
-    />
+    <>
+      <TaskDetailPresentation
+        task={task}
+        taskId={taskId}
+        categories={categories}
+        difficulties={difficulties}
+        user={user}
+        showSolutionForm={showSolutionForm}
+        onShowSolutionForm={handleAddSolution}
+        solutionFormSlot={
+          showSolutionForm ? (
+            <Suspense
+              fallback={
+                <div className="bg-card rounded-lg border p-6 shadow-sm">
+                  <Skeleton className="mb-4 h-6 w-48" />
+                  <Skeleton className="mb-4 h-4 w-full" />
+                  <Skeleton className="mb-6 h-32 w-full" />
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              }
+            >
+              <SolutionFormLazy
+                taskId={taskId}
+                onSuccess={() => {
+                  setShowSolutionForm(false);
+                }}
+                onCancel={() => setShowSolutionForm(false)}
+              />
+            </Suspense>
+          ) : null
+        }
+      />
+      <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
+    </>
   );
 }

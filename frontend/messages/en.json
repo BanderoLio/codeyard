@@ -227,9 +227,15 @@
     "languageRequired": "Language is required",
     "invalidUrl": "Invalid URL",
     "usernameRequired": "Username is required",
+    "usernameMin": "Username must be at least 3 characters",
+    "usernameMax": "Username must be at most 50 characters",
     "passwordRequired": "Password is required",
+    "passwordMin": "Password must be at least 5 characters",
+    "passwordMax": "Password must be at most 255 characters",
     "emailRequired": "Email is required",
-    "emailInvalid": "Invalid email address"
+    "emailInvalid": "Invalid email address",
+    "numberRequired": "This field is required",
+    "expectedNumber": "Expected number"
   },
   "LocaleSwitcher": {
     "label": "Language",
