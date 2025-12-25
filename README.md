@@ -72,7 +72,8 @@ docker volume create django_media
 ```bash
 cd backend
 cp env.example .env
-# Отредактируйте .env при необходимости
+# В .env уже настроен DJANGO_ALLOW_LAN_ACCESS=true для доступа из локальной сети
+# Это позволяет заходить с любого устройства в LAN по IP-адресу (например, http://10.82.62.150)
 docker compose up -d --build
 ```
 
@@ -96,8 +97,23 @@ docker compose up -d --build
 
 **Готово!** Приложение доступно на:
 
-- Frontend: http://localhost
-- Backend API: http://localhost/api/
+- Frontend: http://localhost (или http://<ваш-IP-адрес> для доступа из локальной сети)
+- Backend API: http://localhost/api/ (или http://<ваш-IP-адрес>/api/)
+
+**Доступ из локальной сети:**
+
+Frontend автоматически определяет baseURL на основе текущего адреса в браузере (`window.location.origin`), поэтому:
+
+- При доступе с `http://localhost` - запросы идут на `http://localhost/api/`
+- При доступе с `http://192.168.1.100` - запросы идут на `http://192.168.1.100/api/`
+- При доступе с доменного имени - запросы идут на соответствующий домен
+
+Убедитесь, что:
+
+1. Nginx слушает на `0.0.0.0:80` (по умолчанию в Docker)
+2. Firewall разрешает входящие подключения на порт 80
+3. Устройства находятся в одной локальной сети
+
 - API Docs: http://localhost/api/docs/
 
 **Важно для Docker:**

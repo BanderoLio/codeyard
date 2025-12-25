@@ -111,6 +111,9 @@ Create `.env` file in the `backend` directory. Use `env.example` as a template:
 # Security
 DJANGO_SECRET_KEY=your-secret-key-change-in-production
 DJANGO_DEBUG=true
+# Allow LAN access: set to true to enable access from any IP in local network
+# When enabled, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, and CORS will allow all hosts
+DJANGO_ALLOW_LAN_ACCESS=true
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://localhost:3000
 

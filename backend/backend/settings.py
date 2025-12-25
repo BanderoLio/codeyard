@@ -34,19 +34,31 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0"
-    ).split(",")
-    if host.strip()
-]
+ALLOW_LAN_ACCESS = os.getenv("DJANGO_ALLOW_LAN_ACCESS", "false").lower() in (
+    "true",
+    "1",
+    "yes",
+)
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
-    if origin.strip()
-]
+if DEBUG or ALLOW_LAN_ACCESS:
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [
+        host.strip()
+        for host in os.getenv(
+            "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0"
+        ).split(",")
+        if host.strip()
+    ]
+
+if DEBUG or ALLOW_LAN_ACCESS:
+    CSRF_TRUSTED_ORIGINS = ["*"]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
 
 
 # Application definition
@@ -259,14 +271,18 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
 }
 
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv(
-        "DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:3000"
-    ).split(",")
-    if origin.strip()
-]
-CORS_ALLOW_ALL_ORIGINS = False
+if DEBUG or ALLOW_LAN_ACCESS:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = []
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv(
+            "DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:3000"
+        ).split(",")
+        if origin.strip()
+    ]
 CORS_ALLOW_CREDENTIALS = True
 
 REFRESH_COOKIE_NAME = "refreshToken"
