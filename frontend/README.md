@@ -206,7 +206,14 @@ cp env.example .env
 # Endpoints include /api/ prefix, so baseURL should NOT include /api
 ```
 
-**Important:** In Docker, the frontend accesses the backend through Nginx proxy. The `NEXT_PUBLIC_API_BASE_URL` should be `http://localhost` (not `http://localhost/api`), because all endpoints already include the `/api/` prefix. Nginx automatically proxies `/api/` requests to the backend container.
+**Important:**
+
+- In Docker, the frontend accesses the backend through Nginx proxy. The `NEXT_PUBLIC_API_BASE_URL` should be `http://localhost` (not `http://localhost/api`), because all endpoints already include the `/api/` prefix. Nginx automatically proxies `/api/` requests to the backend container.
+- **LAN Access:** The frontend automatically uses `window.location.origin` in the browser, so it works with:
+  - `http://localhost` (local access)
+  - `http://192.168.1.100` (LAN IP access)
+  - Any domain name
+    The `NEXT_PUBLIC_API_BASE_URL` environment variable is only used for SSR/server-side rendering.
 
 For production, use `env.production.example`:
 
@@ -244,8 +251,10 @@ See `env.example` for development and `env.production.example` for production.
 
 Key variables:
 
-- `NEXT_PUBLIC_API_BASE_URL`: Backend API URL (e.g., `http://localhost` for Docker, `http://localhost:8000` for local dev, `https://api.yourdomain.com` for prod). Note: endpoints already include `/api/` prefix.
+- `NEXT_PUBLIC_API_BASE_URL`: Backend API URL for SSR only. In browser, the code automatically uses `window.location.origin` (supports localhost, LAN IPs, and domain names). Examples: `http://localhost` for Docker, `http://localhost:8000` for local dev, `https://api.yourdomain.com` for prod. Note: endpoints already include `/api/` prefix.
 - `NEXT_OUTPUT=standalone`: Required for Docker deployment
+
+**LAN Access:** When accessing from another device in your local network (e.g., `http://192.168.1.100`), the frontend automatically uses that IP address for API requests. No configuration needed!
 
 ### Docker Volumes
 

@@ -25,6 +25,20 @@ class ApiResponse<T> {
   }
 }
 
+/**
+ * Get the API base URL dynamically.
+ * In browser: uses current origin (works for localhost and LAN IPs)
+ * In server/SSR: uses environment variable or defaults to localhost
+ */
+function getApiBaseURL(): string {
+  // In browser environment, use current origin (supports localhost and LAN IPs)
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  // In server/SSR, use environment variable or default
+  return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+}
+
 export class ApiClient {
   private axiosInstance: AxiosInstance;
   private baseURL: string;
@@ -38,13 +52,15 @@ export class ApiClient {
   }> = [];
 
   constructor(baseURL: string, options: ApiClientOptions = {}) {
-    this.baseURL = baseURL;
+    // In browser, use current origin (supports localhost and LAN IPs)
+    this.baseURL =
+      typeof window !== 'undefined' ? window.location.origin : baseURL;
     this.getAccessToken = options.getAccessToken;
     this.onTokenRefresh = options.onTokenRefresh;
     this.onUnauthorized = options.onUnauthorized;
 
     this.axiosInstance = axios.create({
-      baseURL,
+      baseURL: this.baseURL,
       headers: options.headers,
       withCredentials: true,
     });
@@ -180,8 +196,9 @@ export class ApiClient {
 }
 
 // Создаем экземпляр API client
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+// Uses dynamic baseURL: window.location.origin in browser (works for localhost and LAN IPs)
+// Falls back to env variable or localhost:8000 for SSR
+const API_BASE_URL = getApiBaseURL();
 
 let accessTokenGetter: (() => string | null) | null = null;
 let tokenRefreshHandler: ((accessToken: string) => void) | null = null;
