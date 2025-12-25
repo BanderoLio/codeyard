@@ -36,7 +36,7 @@ export function SolutionCard({ solution, taskId }: TSolutionCardProps) {
   const isOwner = user?.username === solution.user;
 
   return (
-    <article className="bg-card rounded-lg border p-4 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-6">
+    <article className="bg-card w-full max-w-full min-w-0 rounded-lg border p-4 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-6">
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -107,19 +107,23 @@ export function SolutionCard({ solution, taskId }: TSolutionCardProps) {
       </div>
 
       {solution.explanation && (
-        <div className="mb-4">
+        <div className="mb-4 min-w-0">
           <h4 className="mb-2 text-sm font-semibold">{t('explanation')}</h4>
-          <p className="text-muted-foreground text-sm whitespace-pre-wrap">
+          <p className="text-muted-foreground text-sm wrap-break-word whitespace-pre-wrap">
             {solution.explanation}
           </p>
         </div>
       )}
 
-      <div className="mb-4">
+      <div className="mb-4 min-w-0">
         <h4 className="mb-2 text-sm font-semibold" id={`code-${solution.id}`}>
           {t('code')}
         </h4>
-        <div role="region" aria-labelledby={`code-${solution.id}`}>
+        <div
+          className="min-w-0"
+          role="region"
+          aria-labelledby={`code-${solution.id}`}
+        >
           <CodeBlock
             code={solution.code}
             language={solution.language_name}
