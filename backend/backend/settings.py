@@ -34,6 +34,11 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 
+# Check if we're running tests (needed for CSRF_TRUSTED_ORIGINS configuration)
+is_testing = "test" in sys.argv or os.getenv(
+    "DJANGO_USE_SQLITE_FOR_TESTS", ""
+).lower() in ("true", "1", "yes")
+
 ALLOW_LAN_ACCESS = os.getenv("DJANGO_ALLOW_LAN_ACCESS", "false").lower() in (
     "true",
     "1",
@@ -51,8 +56,11 @@ else:
         if host.strip()
     ]
 
-if DEBUG or ALLOW_LAN_ACCESS:
-    CSRF_TRUSTED_ORIGINS = ["*"]
+# CSRF_TRUSTED_ORIGINS: Django 4.0+ requires full URLs with scheme
+if is_testing:
+    CSRF_TRUSTED_ORIGINS = []
+elif DEBUG or ALLOW_LAN_ACCESS:
+    CSRF_TRUSTED_ORIGINS = []
 else:
     CSRF_TRUSTED_ORIGINS = [
         origin.strip()
@@ -129,9 +137,7 @@ DATABASES = {
 
 # Use SQLite for tests if running locally (not in Docker)
 # This allows tests to run without requiring PostgreSQL
-is_testing = "test" in sys.argv or os.getenv(
-    "DJANGO_USE_SQLITE_FOR_TESTS", ""
-).lower() in ("true", "1", "yes")
+# Note: is_testing is already defined above for CSRF_TRUSTED_ORIGINS
 
 if is_testing:
     DATABASES["default"] = {
