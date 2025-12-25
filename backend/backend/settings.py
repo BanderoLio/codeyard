@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -114,15 +115,34 @@ DATABASES = {
     }
 }
 
+# Use SQLite for tests if running locally (not in Docker)
+# This allows tests to run without requiring PostgreSQL
+is_testing = "test" in sys.argv or os.getenv(
+    "DJANGO_USE_SQLITE_FOR_TESTS", ""
+).lower() in ("true", "1", "yes")
+
+if is_testing:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
+
 CACHES = {
     "default": {
         "BACKEND": os.getenv(
             "DJANGO_CACHE_BACKEND",
-            "django.core.cache.backends.filebased.FileBasedCache",
+            "django_redis.cache.RedisCache",
         ),
-        "LOCATION": os.getenv(
-            "DJANGO_CACHE_LOCATION", BASE_DIR / "cache-data"
-        ),
+        "LOCATION": os.getenv("DJANGO_CACHE_LOCATION", "redis://redis:6379/1"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+            "IGNORE_EXCEPTIONS": True,
+        },
+        "KEY_PREFIX": "codeyard",
+        "TIMEOUT": 300,
     }
 }
 
@@ -132,6 +152,15 @@ SILENCED_SYSTEM_CHECKS = [
 ]
 
 RATELIMIT_USE_CACHE = "default"
+
+# Use dummy cache for tests (no Redis required)
+# DummyCache doesn't persist data, so rate limiting won't work in tests
+if is_testing:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
+    }
 
 
 # Password validation

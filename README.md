@@ -23,6 +23,7 @@
 ## Технологический стек
 
 ### Backend
+
 - **Python 3.10+** — язык программирования
 - **Django 5.2.8** — веб-фреймворк
 - **Django REST Framework 3.15.2** — создание REST API
@@ -31,10 +32,12 @@
 - **drf-spectacular** — автоматическая документация API
 
 ### База данных
+
 - **SQLite** — для разработки
 - **PostgreSQL** — для production
 
 ### Фронтенд
+
 - **Next.js 15** — React фреймворк
 - **TypeScript** — типизированный JavaScript
 - **TailwindCSS** — стили
@@ -45,10 +48,84 @@
 
 ## Установка и запуск
 
+### Docker Deployment (Рекомендуется)
+
+Самый простой способ запустить весь проект через Docker Compose.
+
+#### Prerequisites
+
+- Docker и Docker Compose установлены
+- Порты 80, 443 свободны
+
+#### Быстрый старт
+
+**Шаг 1: Создание Docker Network и Volumes**
+
+```bash
+docker network create web_network
+docker volume create django_static
+docker volume create django_media
+```
+
+**Шаг 2: Запуск Backend**
+
+```bash
+cd backend
+cp env.example .env
+# Отредактируйте .env при необходимости
+docker compose up -d --build
+```
+
+**Шаг 3: Инициализация Backend**
+
+```bash
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py collectstatic --noinput
+```
+
+**Шаг 4: Запуск Frontend**
+
+```bash
+cd ../frontend
+cp env.example .env
+# В .env уже настроен NEXT_PUBLIC_API_BASE_URL=http://localhost для Docker
+# Endpoints содержат префикс /api/, поэтому baseURL не должен включать /api
+docker compose up -d --build
+```
+
+**Готово!** Приложение доступно на:
+
+- Frontend: http://localhost
+- Backend API: http://localhost/api/
+- API Docs: http://localhost/api/docs/
+
+**Важно для Docker:**
+
+- В `frontend/.env` должен быть `NEXT_PUBLIC_API_BASE_URL=http://localhost`
+- Endpoints уже содержат префикс `/api/`, поэтому baseURL не должен включать `/api`
+- Nginx проксирует `/api/` на backend контейнер автоматически
+- Не используйте `http://localhost:8000` в Docker окружении - это не будет работать из браузера
+
+#### Структура Docker
+
+- **Backend**: PostgreSQL, Redis, Django (Gunicorn)
+- **Frontend**: Next.js (standalone), Nginx
+
+Подробнее см.:
+
+- [Backend README](backend/README.md#docker-deployment-recommended)
+- [Frontend README](frontend/README.md#docker-deployment-recommended)
+
+### Manual Setup (Без Docker)
+
 ### Требования
+
 - Python 3.10+
 - Node.js 18+ (для фронтенда)
 - Git
+- PostgreSQL (для production)
+- Redis (для production)
 
 ### Шаг 1: Клонирование репозитория
 
@@ -60,6 +137,7 @@ cd codeyard
 ### Шаг 2: Настройка Backend
 
 #### 2.1 Создание виртуального окружения
+
 ```bash
 python -m venv .venv
 
@@ -71,12 +149,14 @@ source .venv/bin/activate
 ```
 
 #### 2.2 Установка зависимостей
+
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
 #### 2.3 Настройка переменных окружения
+
 ```bash
 # Скопировать пример конфигурации
 cp backend/.env.example backend/.env
@@ -88,21 +168,25 @@ cp backend/.env.example backend/.env
 ```
 
 #### 2.4 Миграции БД
+
 ```bash
 python manage.py migrate
 ```
 
 #### 2.5 Загрузка начальных данных
+
 ```bash
 python manage.py seed_data
 ```
 
 #### 2.6 Создание суперюзера (необязательно)
+
 ```bash
 python manage.py createsuperuser
 ```
 
 #### 2.7 Запуск development сервера
+
 ```bash
 python manage.py runserver
 ```
@@ -112,6 +196,7 @@ Backend будет доступен на: http://localhost:8000
 ### Шаг 3: Настройка Frontend
 
 #### 3.1 Установка зависимостей
+
 ```bash
 cd ../frontend
 npm install
@@ -120,6 +205,7 @@ pnpm install
 ```
 
 #### 3.2 Запуск development сервера
+
 ```bash
 npm run dev
 
@@ -129,6 +215,7 @@ pnpm dev
 Frontend будет доступен на: http://localhost:3000
 
 ---
+
 ## Скриншоты
 
 ![главная](docs/screenshots/main_page.png)
@@ -139,12 +226,14 @@ Frontend будет доступен на: http://localhost:3000
 ## API Документация
 
 ### Доступ к документации
+
 - **Swagger UI**: http://localhost:8000/api/docs/
 - **ReDoc**: http://localhost:8000/api/redoc/
 
 ### Основные эндпоинты
 
 #### Аутентификация
+
 - `POST /api/auth/register/` — Регистрация нового пользователя
 - `POST /api/auth/login/` — Вход (получение JWT токена)
 - `POST /api/auth/refresh/` — Обновление токена
@@ -152,6 +241,7 @@ Frontend будет доступен на: http://localhost:3000
 - `GET /api/auth/me/` — Информация о текущем пользователе
 
 #### Задачи
+
 - `GET /api/tasks/` — Список задач (с фильтрацией и поиском)
 - `POST /api/tasks/` — Создание новой задачи
 - `GET /api/tasks/{id}/` — Детали задачи
@@ -159,6 +249,7 @@ Frontend будет доступен на: http://localhost:3000
 - `DELETE /api/tasks/{id}/` — Удаление задачи (только автор)
 
 #### Решения
+
 - `GET /api/solutions/` — Список решений
 - `POST /api/solutions/` — Создание решения
 - `GET /api/solutions/{id}/` — Детали решения
@@ -166,12 +257,14 @@ Frontend будет доступен на: http://localhost:3000
 - `DELETE /api/solutions/{id}/` — Удаление решения (только автор)
 
 #### Отзывы
+
 - `GET /api/reviews/` — Список отзывов
 - `POST /api/reviews/` — Добавление отзыва
 - `PATCH /api/reviews/{id}/` — Обновление отзыва
 - `DELETE /api/reviews/{id}/` — Удаление отзыва
 
 #### Справочники
+
 - `GET /api/categories/` — Категории (кэшировано 1 час)
 - `GET /api/difficulties/` — Уровни сложности (кэшировано 1 час)
 - `GET /api/languages/` — Языки программирования (кэшировано 1 час)
@@ -181,7 +274,6 @@ Frontend будет доступен на: http://localhost:3000
 ## Архитектура
 
 ![Диаграмма взаимодействия компонентов](docs/diagrams/architecture.drawio.png)
-
 
 ### Структура Backend
 
@@ -224,7 +316,6 @@ backend/
 
 ![ER диаграмма](docs/diagrams/codeyard_db.drawio.png)
 
-
 ---
 
 ## Тестирование
@@ -246,14 +337,16 @@ coverage run --source='.' manage.py test
 coverage report
 ```
 
-**Результаты:** 
-- **37/37** 
+**Результаты:**
+
+- **37/37**
 - **Категории тестов:**
   - Аутентификация: 10 тестов
   - API задач: 8 тестов
   - API решений: 5 тестов
   - API отзывов: 4 тестов
   - Сервисы: 10 тестов
+
 ---
 
 ## Безопасность
@@ -275,6 +368,7 @@ coverage report
 ---
 
 ## Авторы:
+
 **Ганьшин В.М. & Гордиенко А.О.**
 
 ---

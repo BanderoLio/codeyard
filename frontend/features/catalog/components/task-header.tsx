@@ -50,7 +50,7 @@ export function TaskHeader({
           <ExternalLink className="h-4 w-4" aria-hidden="true" />
         </a>
       )}
-      <p className="text-muted-foreground mt-4 whitespace-pre-wrap">
+      <p className="text-muted-foreground mt-4 wrap-break-word whitespace-pre-wrap">
         {task.description}
       </p>
     </div>

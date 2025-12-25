@@ -103,9 +103,12 @@ export class ApiClient {
 
           try {
             const refreshResponse = await axios.post<{ access: string }>(
-              `${this.baseURL}/api/auth/refresh/`,
+              `/api/auth/refresh/`,
               {},
-              { withCredentials: true },
+              {
+                baseURL: this.baseURL,
+                withCredentials: true,
+              },
             );
 
             const newAccessToken = refreshResponse.data.access;
@@ -146,7 +149,7 @@ export class ApiClient {
     endpoint: Endpoint<E>,
     params?: URLSearchParams,
   ) {
-    let url = `${this.baseURL}${endpoint}`;
+    let url = endpoint as string;
     if (params) {
       url += `?${params.toString()}`;
     }

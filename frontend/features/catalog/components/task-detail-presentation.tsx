@@ -32,7 +32,7 @@ export function TaskDetailPresentation({
   const t = useTranslations('TaskDetail');
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-4 sm:py-8">
+    <div className="container mx-auto w-full max-w-7xl px-4 py-4 sm:px-4 sm:py-8">
       <Breadcrumbs
         items={[
           { label: t('home'), href: '/' },

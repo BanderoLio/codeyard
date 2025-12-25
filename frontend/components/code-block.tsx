@@ -233,7 +233,7 @@ export function CodeBlock({
 
   return (
     <div
-      className="bg-muted/30 relative rounded-md border p-4"
+      className="bg-muted/30 relative w-full max-w-full overflow-x-auto rounded-md border p-4"
       role="region"
       aria-label="Code block"
     >
@@ -260,25 +260,28 @@ export function CodeBlock({
         </Button>
       )}
       {mounted ? (
-        <SyntaxHighlighter
-          language={detectedLanguage}
-          style={highlightStyle}
-          customStyle={{
-            margin: 0,
-            borderRadius: '0.375rem',
-            fontSize: '0.875rem',
-            lineHeight: '1.5',
-            background: 'transparent',
-          }}
-          showLineNumbers
-          wrapLines
-          wrapLongLines
-          aria-label={`Code block in ${detectedLanguage}`}
-        >
-          {code}
-        </SyntaxHighlighter>
+        <div className="min-w-0 overflow-x-auto">
+          <SyntaxHighlighter
+            language={detectedLanguage}
+            style={highlightStyle}
+            customStyle={{
+              margin: 0,
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              lineHeight: '1.5',
+              background: 'transparent',
+              minWidth: 'fit-content',
+            }}
+            showLineNumbers
+            wrapLines
+            wrapLongLines
+            aria-label={`Code block in ${detectedLanguage}`}
+          >
+            {code}
+          </SyntaxHighlighter>
+        </div>
       ) : (
-        <pre className="bg-muted/30 text-muted-foreground rounded-md border p-4 text-xs">
+        <pre className="bg-muted/30 text-muted-foreground min-w-0 overflow-x-auto rounded-md border p-4 text-xs">
           {code}
         </pre>
       )}

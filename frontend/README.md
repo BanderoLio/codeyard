@@ -178,13 +178,107 @@ frontend/
 - IconButton
 - CodeyardIcon
 
+## Docker Deployment (Recommended)
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Docker network and volumes created (see backend README)
+
+### Quick Start
+
+**Step 1: Create Docker Network and Volumes** (if not already created)
+
+```bash
+docker network create web_network
+docker volume create django_static
+docker volume create django_media
+```
+
+**Step 2: Configure Environment**
+
+Copy the example environment file (already configured for Docker):
+
+```bash
+cd frontend
+cp env.example .env
+# .env already has NEXT_PUBLIC_API_BASE_URL=http://localhost
+# Endpoints include /api/ prefix, so baseURL should NOT include /api
+```
+
+**Important:** In Docker, the frontend accesses the backend through Nginx proxy. The `NEXT_PUBLIC_API_BASE_URL` should be `http://localhost` (not `http://localhost/api`), because all endpoints already include the `/api/` prefix. Nginx automatically proxies `/api/` requests to the backend container.
+
+For production, use `env.production.example`:
+
+```bash
+cp env.production.example .env
+# Edit .env with production settings
+```
+
+**Step 3: Start Frontend Services**
+
+```bash
+cd frontend
+docker compose up -d --build
+```
+
+This will start:
+
+- Next.js application
+- Nginx reverse proxy (ports 80 and 443)
+
+**Step 4: View Logs**
+
+```bash
+docker compose logs -f nextjs
+```
+
+### Docker Services
+
+- **nextjs**: Next.js application (standalone mode)
+- **nginx**: Nginx reverse proxy serving static files and proxying API requests
+
+### Environment Variables for Docker
+
+See `env.example` for development and `env.production.example` for production.
+
+Key variables:
+
+- `NEXT_PUBLIC_API_BASE_URL`: Backend API URL (e.g., `http://localhost` for Docker, `http://localhost:8000` for local dev, `https://api.yourdomain.com` for prod). Note: endpoints already include `/api/` prefix.
+- `NEXT_OUTPUT=standalone`: Required for Docker deployment
+
+### Docker Volumes
+
+- `django_static`: Static files from Django backend (read-only)
+- `django_media`: Media files from Django backend (read-only)
+
+### Manual Setup (Without Docker)
+
 ### Переменные окружения
 
+**Для Docker (рекомендуется):**
+Используйте `env.example` - он уже настроен правильно:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost
+NEXT_OUTPUT=standalone
+```
+
+**Для локальной разработки (без Docker):**
 Создайте `.env.local` в корне `frontend/`:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
+
+**Для Production:**
+
+```env
+NEXT_PUBLIC_API_BASE_URL=https://api.yourdomain.com
+NEXT_OUTPUT=standalone
+```
+
+**Важно:** В Docker окружении используйте `http://localhost/api` (через Nginx proxy), а не `http://localhost:8000`.
 
 ### Установка и запуск
 

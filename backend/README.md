@@ -4,6 +4,93 @@
 - Django 5.2.8
 - Django REST Framework 3.15.2
 - PostgreSQL recommended (SQLite for development)
+- Redis for caching (required for multiple instances)
+
+## Docker Deployment (Recommended)
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- Docker network and volume created
+
+### Quick Start
+
+**Step 1: Create Docker Network and Volume**
+
+```bash
+docker network create web_network
+docker volume create django_static
+docker volume create django_media
+```
+
+**Step 2: Configure Environment**
+
+Copy the example environment file and configure it:
+
+```bash
+cd backend
+cp env.example .env
+# Edit .env with your settings
+```
+
+For production, use `env.production.example`:
+
+```bash
+cp env.production.example .env
+# Edit .env with production settings
+```
+
+**Step 3: Start Backend Services**
+
+```bash
+cd backend
+docker compose up -d --build
+```
+
+This will start:
+
+- PostgreSQL database
+- Redis cache
+- Django application (with Gunicorn)
+
+**Step 4: Run Migrations**
+
+```bash
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py collectstatic --noinput
+```
+
+**Step 5: View Logs**
+
+```bash
+docker compose logs -f web
+```
+
+### Docker Services
+
+- **db**: PostgreSQL 16 database
+- **redis**: Redis 7 cache server
+- **web**: Django application with Gunicorn
+
+### Environment Variables for Docker
+
+See `env.example` for development and `env.production.example` for production.
+
+Key variables:
+
+- `DJANGO_DB_HOST=db` (Docker service name)
+- `DJANGO_CACHE_LOCATION=redis://redis:6379/1` (Docker service name)
+- `DJANGO_DB_ENGINE=django.db.backends.postgresql`
+
+### Docker Volumes
+
+- `postgres_data`: PostgreSQL data persistence
+- `redis_data`: Redis data persistence
+- `django_static`: Static files (shared with frontend)
+- `django_media`: Media files (shared with frontend)
+
+### Manual Setup (Without Docker)
 
 ### Install dependencies
 
@@ -16,34 +103,45 @@ pip install -r backend/requirements.txt
 
 ### Environment Configuration
 
-Create `.env` file in the `backend` directory:
+Create `.env` file in the `backend` directory. Use `env.example` as a template:
+
+**Development (Local):**
 
 ```env
 # Security
 DJANGO_SECRET_KEY=your-secret-key-change-in-production
-DJANGO_DEBUG=true  # Set to false in production
+DJANGO_DEBUG=true
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
 DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://localhost:3000
 
-# Database
-DJANGO_DB_ENGINE=django.db.backends.sqlite3  # Use django.db.backends.postgresql for PostgreSQL
+# Database (SQLite for local development)
+DJANGO_DB_ENGINE=django.db.backends.sqlite3
 DJANGO_DB_NAME=db.sqlite3
 DJANGO_DB_USER=
 DJANGO_DB_PASSWORD=
 DJANGO_DB_HOST=
 DJANGO_DB_PORT=
 
-# Cache
-DJANGO_CACHE_BACKEND=django.core.cache.backends.filebased.FileBasedCache
-DJANGO_CACHE_LOCATION=cache-data
+# Cache (Redis for local development)
+DJANGO_CACHE_BACKEND=django_redis.cache.RedisCache
+DJANGO_CACHE_LOCATION=redis://127.0.0.1:6379/1
 
 # Security Cookies
-DJANGO_SECURE_COOKIES=false  # Set to true in production (requires HTTPS)
-DJANGO_REFRESH_COOKIE_SAMESITE=Lax  # Use Strict in production
+DJANGO_SECURE_COOKIES=false
+DJANGO_REFRESH_COOKIE_SAMESITE=Lax
 
 # CORS
 DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
+
+**Docker (Development/Production):**
+See `env.example` for Docker development setup or `env.production.example` for production.
+
+Key differences for Docker:
+
+- `DJANGO_DB_HOST=db` (Docker service name)
+- `DJANGO_CACHE_LOCATION=redis://redis:6379/1` (Docker service name)
+- `DJANGO_DB_ENGINE=django.db.backends.postgresql`
 
 ### Database Setup
 
@@ -88,6 +186,7 @@ coverage html  # Generate HTML report
 ### API Endpoints
 
 #### Authentication
+
 - `POST /api/auth/register/` - Register new user
 - `POST /api/auth/login/` - Login (returns access token, refresh token in cookie)
 - `POST /api/auth/refresh/` - Refresh access token
@@ -95,6 +194,7 @@ coverage html  # Generate HTML report
 - `POST /api/auth/logout/` - Logout user
 
 #### Tasks
+
 - `GET /api/tasks/` - List tasks (paginated, with filters)
 - `POST /api/tasks/` - Create task (authenticated only)
 - `GET /api/tasks/{id}/` - Get task details
@@ -102,6 +202,7 @@ coverage html  # Generate HTML report
 - `DELETE /api/tasks/{id}/` - Delete task (owner only)
 
 #### Solutions
+
 - `GET /api/solutions/` - List solutions (public/own)
 - `POST /api/solutions/` - Create solution
 - `GET /api/solutions/{id}/` - Get solution details
@@ -110,10 +211,12 @@ coverage html  # Generate HTML report
 - `POST /api/solutions/{id}/publish/` - Publish/unpublish solution
 
 #### Reviews
+
 - `GET /api/reviews/` - List reviews
 - `POST /api/reviews/` - Create/update review
 
 #### References
+
 - `GET /api/categories/` - List categories (cached 1 hour)
 - `GET /api/difficulties/` - List difficulties (cached 1 hour)
 - `GET /api/languages/` - List languages (cached 1 hour)
@@ -162,7 +265,7 @@ backend/
 1. **Separation of Concerns**: Business logic in services, API views handle HTTP
 2. **Custom Permissions**: `IsOwnerOrReadOnly` for resource ownership
 3. **Transaction Management**: Atomic operations for multi-step processes
-4. **Rate Limiting**: 
+4. **Rate Limiting**:
    - Login: 5 attempts/minute
    - Register: 3 attempts/minute
    - Token refresh: 10 attempts/minute
@@ -184,11 +287,12 @@ backend/
   - Composite indexes for common queries
   - `select_related` and `prefetch_related` for N+1 prevention
   - Efficient pagination (default 20 items/page)
-  
 - **Caching**:
+  - Redis-based caching (supports multiple server instances)
   - Reference data (categories, difficulties, languages): 1 hour
   - Task lists: 5 minutes
-  - File-based cache for development (configurable)
+  - Automatic cache invalidation on data changes via Django signals
+  - Cache versioning for efficient invalidation
 
 #### Database Models
 
@@ -255,12 +359,13 @@ Before deploying to production:
 2. Generate a strong `DJANGO_SECRET_KEY`
 3. Set `DJANGO_SECURE_COOKIES=true` (requires HTTPS)
 4. Configure PostgreSQL or other production database
-5. Set up Redis for caching and sessions
+5. Set up Redis for caching (required for multiple instances)
 6. Use gunicorn or similar WSGI server
 7. Set up proper logging
 8. Run `python manage.py collectstatic`
 
 Example gunicorn command:
+
 ```bash
 gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 60
 ```
@@ -268,20 +373,27 @@ gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 60
 ### Troubleshooting
 
 **Import errors after installing packages**:
+
 ```bash
 pip install -r requirements.txt --force-reinstall
 ```
 
 **Database migration issues**:
+
 ```bash
 python manage.py makemigrations
 python manage.py migrate --fake-initial
 ```
 
 **Cache issues**:
+
 ```bash
+# For file-based cache (development only):
 rm -rf cache-data/
 mkdir cache-data/
+
+# For Redis cache:
+redis-cli FLUSHDB  # Clear Redis database (use with caution!)
 ```
 
 ### Contributing
