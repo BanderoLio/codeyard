@@ -34,19 +34,39 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0"
-    ).split(",")
-    if host.strip()
-]
+# Check if we're running tests (needed for CSRF_TRUSTED_ORIGINS configuration)
+is_testing = "test" in sys.argv or os.getenv(
+    "DJANGO_USE_SQLITE_FOR_TESTS", ""
+).lower() in ("true", "1", "yes")
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
-    if origin.strip()
-]
+ALLOW_LAN_ACCESS = os.getenv("DJANGO_ALLOW_LAN_ACCESS", "false").lower() in (
+    "true",
+    "1",
+    "yes",
+)
+
+if DEBUG or ALLOW_LAN_ACCESS:
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [
+        host.strip()
+        for host in os.getenv(
+            "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0"
+        ).split(",")
+        if host.strip()
+    ]
+
+# CSRF_TRUSTED_ORIGINS: Django 4.0+ requires full URLs with scheme
+if is_testing:
+    CSRF_TRUSTED_ORIGINS = []
+elif DEBUG or ALLOW_LAN_ACCESS:
+    CSRF_TRUSTED_ORIGINS = []
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
 
 
 # Application definition
@@ -117,9 +137,7 @@ DATABASES = {
 
 # Use SQLite for tests if running locally (not in Docker)
 # This allows tests to run without requiring PostgreSQL
-is_testing = "test" in sys.argv or os.getenv(
-    "DJANGO_USE_SQLITE_FOR_TESTS", ""
-).lower() in ("true", "1", "yes")
+# Note: is_testing is already defined above for CSRF_TRUSTED_ORIGINS
 
 if is_testing:
     DATABASES["default"] = {
@@ -259,14 +277,18 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
 }
 
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv(
-        "DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:3000"
-    ).split(",")
-    if origin.strip()
-]
-CORS_ALLOW_ALL_ORIGINS = False
+if DEBUG or ALLOW_LAN_ACCESS:
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = []
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv(
+            "DJANGO_CORS_ALLOWED_ORIGINS", "http://localhost:3000"
+        ).split(",")
+        if origin.strip()
+    ]
 CORS_ALLOW_CREDENTIALS = True
 
 REFRESH_COOKIE_NAME = "refreshToken"
